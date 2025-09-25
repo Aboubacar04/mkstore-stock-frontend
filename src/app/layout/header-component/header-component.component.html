@@ -1,19 +1,150 @@
-<header class="header">
-  <div class="logo">Gestion Stock</div>
+<!-- header-component.component.html -->
+<nav class="navbar navbar-expand-lg custom-navbar shadow-sm sticky-top">
+  <div class="container-fluid px-3 px-lg-4">
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold fs-4 text-white" routerLink="/">
+      <i class="bi bi-box-seam me-2"></i>
+      Gestion Stock
+    </a>
 
-  <!-- Bouton hamburger -->
-  <div class="burger" (click)="toggleMenu()">
-    <div></div>
-    <div></div>
-    <div></div>
+    <!-- Mobile Toggle Button -->
+    <button
+      class="navbar-toggler border-0"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon-custom">
+        <i class="bi bi-list text-white fs-3"></i>
+      </span>
+    </button>
+
+    <!-- Navigation Links -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+        <li class="nav-item">
+          <a
+            class="nav-link nav-link-custom px-3 py-2 rounded-pill me-2"
+            routerLink="/accueil"
+            routerLinkActive="active">
+            <i class="bi bi-house-door me-1"></i>
+            Accueil
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link nav-link-custom px-3 py-2 rounded-pill me-2"
+            routerLink="/tailles"
+            routerLinkActive="active">
+            <i class="bi bi-rulers me-1"></i>
+            Taille
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link nav-link-custom px-3 py-2 rounded-pill me-2"
+            routerLink="/modeles"
+            routerLinkActive="active">
+            <i class="bi bi-palette me-1"></i>
+            Modèle
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link nav-link-custom px-3 py-2 rounded-pill me-2"
+            routerLink="/stock"
+            routerLinkActive="active">
+            <i class="bi bi-boxes me-1"></i>
+            Stock
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link nav-link-custom px-3 py-2 rounded-pill me-2"
+            routerLink="/commande"
+            routerLinkActive="active">
+            <i class="bi bi-cart-check me-1"></i>
+            Commande
+          </a>
+        </li>
+      </ul>
+
+      <!-- Right Side Actions -->
+      <div class="d-flex align-items-center">
+        <!-- Search Bar (Hidden on small screens) -->
+        <div class="me-3 d-none d-md-block">
+          <div class="input-group search-container">
+            <span class="input-group-text search-icon">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control search-input"
+              placeholder="Rechercher...">
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="dropdown me-3">
+          <button
+            class="btn btn-link text-white position-relative p-2"
+            type="button"
+            data-bs-toggle="dropdown">
+            <i class="bi bi-bell fs-5"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-notification">
+              3
+              <span class="visually-hidden">notifications non lues</span>
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
+            <li><h6 class="dropdown-header">Notifications</h6></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2 text-info"></i>Nouveau stock ajouté</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Stock faible</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-center" href="#">Voir tout</a></li>
+          </ul>
+        </div>
+
+        <!-- User Profile -->
+        <div class="dropdown">
+          <button
+            class="btn btn-link text-white d-flex align-items-center p-2"
+            type="button"
+            data-bs-toggle="dropdown">
+            <div class="user-avatar me-2">
+              <i class="bi bi-person-circle fs-4"></i>
+            </div>
+            <span class="d-none d-lg-inline">Admin</span>
+            <i class="bi bi-chevron-down ms-2 d-none d-lg-inline"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+            <li><h6 class="dropdown-header">Mon Compte</h6></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Paramètres</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
+</nav>
 
-  <!-- Menu unique -->
-  <nav [class.active]="menuActive" class="nav-links">
-    <a routerLink="/accueil" (click)="closeMenu()">Accueil</a>
-    <a routerLink="/tailles" (click)="closeMenu()">Taille</a>
-    <a routerLink="/modeles" (click)="closeMenu()">Modèle</a>
-    <a routerLink="/stock" (click)="closeMenu()">Stock</a>
-    <a routerLink="/commande" (click)="closeMenu()">Commande</a>
-  </nav>
-</header>
+<!-- Mobile Search (Shown only on small screens) -->
+<div class="container-fluid d-md-none mobile-search-container">
+  <div class="row">
+    <div class="col-12 px-3 py-2">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Rechercher...">
+      </div>
+    </div>
+  </div>
+</div>

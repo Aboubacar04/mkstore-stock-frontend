@@ -1,0 +1,286 @@
+<!-- modele-component.component.html -->
+<div class="modele-container">
+  <!-- Alert Messages -->
+  <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
+    <div class="alert-content">
+      <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span>{{ alertMessage }}</span>
+      <button class="alert-close" (click)="closeAlert()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="bi bi-palette"></i>
+        </div>
+        <div>
+          <h1 class="page-title">Gestion des Modèles</h1>
+          <p class="page-subtitle">Gérez vos modèles de vêtements et leurs informations</p>
+        </div>
+      </div>
+      <button class="btn-add" (click)="openAddModal()">
+        <i class="bi bi-plus-circle me-2"></i>
+        Ajouter un modèle
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement en cours...</p>
+  </div>
+
+  <!-- Modèles Table -->
+  <div *ngIf="!isLoading" class="table-container">
+    <div class="table-responsive">
+      <table class="modele-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom du Modèle</th>
+            <th>Type</th>
+            <th>Total Pièces</th>
+            <th>Prix Unitaire</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let modele of modeles" [class.editing-row]="isEditing(modele.id_modele)">
+            <td class="id-cell">#{{ modele.id_modele }}</td>
+
+            <td>
+              <input
+                *ngIf="isEditing(modele.id_modele)"
+                type="text"
+                [(ngModel)]="modele.nom_modele"
+                class="edit-input"
+                placeholder="Nom du modèle">
+              <span *ngIf="!isEditing(modele.id_modele)" class="model-name">
+                {{ modele.nom_modele }}
+              </span>
+            </td>
+
+            <td>
+              <input
+                *ngIf="isEditing(modele.id_modele)"
+                type="text"
+                [(ngModel)]="modele.type"
+                class="edit-input"
+                placeholder="Type">
+              <span *ngIf="!isEditing(modele.id_modele)" class="type-badge">
+                <i class="bi bi-tag-fill me-1"></i>
+                {{ modele.type }}
+              </span>
+            </td>
+
+            <td>
+              <input
+                *ngIf="isEditing(modele.id_modele)"
+                type="number"
+                [(ngModel)]="modele.total_pieces"
+                class="edit-input"
+                min="0">
+              <span *ngIf="!isEditing(modele.id_modele)" class="pieces-count">
+                <i class="bi bi-box-seam me-1"></i>
+                {{ modele.total_pieces }}
+              </span>
+            </td>
+
+            <td>
+              <input
+                *ngIf="isEditing(modele.id_modele)"
+                type="number"
+                [(ngModel)]="modele.prix_unitaire"
+                class="edit-input"
+                min="0">
+              <span *ngIf="!isEditing(modele.id_modele)" class="price">
+                {{ formatPrice(modele.prix_unitaire) }}
+              </span>
+            </td>
+
+            <td class="actions-cell">
+              <!-- Mode Normal -->
+              <div *ngIf="!isEditing(modele.id_modele)" class="action-buttons">
+                <button class="btn-edit" (click)="enableEdit(modele)" title="Modifier">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn-delete" (click)="openDeleteModal(modele)" title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+
+              <!-- Mode Édition -->
+              <div *ngIf="isEditing(modele.id_modele)" class="action-buttons">
+                <button class="btn-save" (click)="saveEdit(modele)" title="Enregistrer">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+                <button class="btn-cancel" (click)="cancelEdit(modele)" title="Annuler">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="modeles.length === 0">
+            <td colspan="6" class="empty-state-cell">
+              <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h3>Aucun modèle trouvé</h3>
+                <p>Commencez par ajouter votre premier modèle</p>
+                <button class="btn-add" (click)="openAddModal()">
+                  <i class="bi bi-plus-circle me-2"></i>
+                  Ajouter un modèle
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Ajout -->
+  <div *ngIf="showAddModal" class="modal-overlay" (click)="closeAddModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="bi bi-plus-circle me-2"></i>
+          Ajouter un nouveau modèle
+        </h2>
+        <button class="modal-close" (click)="closeAddModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="addModele()">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nom_modele">
+                <i class="bi bi-tag me-2"></i>
+                Nom du modèle *
+              </label>
+              <input
+                type="text"
+                id="nom_modele"
+                class="form-control"
+                [(ngModel)]="newModele.nom_modele"
+                name="nom_modele"
+                placeholder="Ex: Fatima_Dresse"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="type">
+                <i class="bi bi-bookmark me-2"></i>
+                Type *
+              </label>
+              <select
+                id="type"
+                class="form-control"
+                [(ngModel)]="newModele.type"
+                name="type"
+                required>
+                <option value="" disabled selected>Sélectionnez un type</option>
+                <option value="Robe">Robe</option>
+                <option value="Ensemble">Ensemble</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="total_pieces">
+                <i class="bi bi-box-seam me-2"></i>
+                Total de pièces
+              </label>
+              <input
+                type="number"
+                id="total_pieces"
+                class="form-control"
+                [(ngModel)]="newModele.total_pieces"
+                name="total_pieces"
+                min="0"
+                placeholder="Ex: 25">
+            </div>
+
+            <div class="form-group">
+              <label for="prix_unitaire">
+                <i class="bi bi-currency-exchange me-2"></i>
+                Prix unitaire (FCFA)
+              </label>
+              <input
+                type="number"
+                id="prix_unitaire"
+                class="form-control"
+                [(ngModel)]="newModele.prix_unitaire"
+                name="prix_unitaire"
+                min="0"
+                placeholder="Ex: 15000">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="image">
+              <i class="bi bi-image me-2"></i>
+              Image (optionnel)
+            </label>
+            <input
+              type="file"
+              id="image"
+              class="form-control"
+              (change)="onFileSelected($event)"
+              accept="image/*">
+            <small class="form-hint">Formats acceptés: JPG, PNG, JPEG</small>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel-modal" (click)="closeAddModal()">
+              <i class="bi bi-x-circle me-2"></i>
+              Annuler
+            </button>
+            <button type="submit" class="btn-submit">
+              <i class="bi bi-check-circle me-2"></i>
+              Ajouter
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Suppression -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal-content modal-delete" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Confirmer la suppression
+        </h2>
+        <button class="modal-close" (click)="closeDeleteModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer le modèle <strong>"{{ modeleToDelete?.nom_modele }}"</strong> ?</p>
+        <p class="text-warning">Cette action est irréversible.</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel-modal" (click)="closeDeleteModal()">
+          <i class="bi bi-x-circle me-2"></i>
+          Annuler
+        </button>
+        <button type="button" class="btn-danger" (click)="confirmDelete()">
+          <i class="bi bi-trash me-2"></i>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
