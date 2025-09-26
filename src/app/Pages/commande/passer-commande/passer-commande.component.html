@@ -1,0 +1,274 @@
+<!-- passer-commande.component.html -->
+<div class="commande-container">
+  <!-- Alert Messages -->
+  <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
+    <div class="alert-content">
+      <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span>{{ alertMessage }}</span>
+      <button class="alert-close" (click)="closeAlert()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="bi bi-cart-plus"></i>
+        </div>
+        <div>
+          <h1 class="page-title">Passer une Commande</h1>
+          <p class="page-subtitle">Sélectionnez vos produits et complétez votre commande</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn-voir-commandes" (click)="voirListeCommandes()">
+          <i class="bi bi-receipt-cutoff"></i>
+          <span>Voir les Commandes</span>
+          <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="commande-grid">
+    <!-- Section Produits Disponibles -->
+    <div class="produits-section">
+      <h2 class="section-title">
+        <i class="bi bi-boxes me-2"></i>
+        Produits Disponibles
+      </h2>
+
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Chargement...</p>
+      </div>
+
+      <!-- Produits Grid -->
+      <div *ngIf="!isLoading" class="produits-grid">
+        <div *ngFor="let produit of produits" class="produit-card" (click)="openProductModal(produit)">
+          <div class="produit-header">
+            <h3 class="produit-nom">{{ produit.modele?.nom_modele }}</h3>
+            <span class="produit-type">{{ produit.modele?.type }}</span>
+          </div>
+          <div class="produit-info">
+            <span class="produit-taille">
+              <i class="bi bi-rulers me-1"></i>
+              {{ produit.taille?.libelle }}
+            </span>
+            <span class="produit-stock" [class.stock-low]="(produit.quantite || 0) < 10">
+              <i class="bi bi-box-seam me-1"></i>
+              {{ produit.quantite }} pcs
+            </span>
+          </div>
+          <div class="produit-footer">
+            <span class="produit-prix">{{ formatPrice(produit.modele?.prix_unitaire || 0) }}</span>
+            <button class="btn-add-cart">
+              <i class="bi bi-plus-circle"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Panier -->
+    <div class="panier-section">
+      <h2 class="section-title">
+        <i class="bi bi-cart-check me-2"></i>
+        Mon Panier ({{ panier.length }})
+      </h2>
+
+      <!-- Info Client -->
+      <div class="client-info">
+        <label for="nomClient">
+          <i class="bi bi-person-fill me-2"></i>
+          Nom du Client *
+        </label>
+        <input
+          type="text"
+          id="nomClient"
+          class="form-control"
+          [(ngModel)]="nomClient"
+          placeholder="Entrez le nom complet du client">
+      </div>
+
+      <!-- Panier vide -->
+      <div *ngIf="panier.length === 0" class="panier-vide">
+        <i class="bi bi-cart-x"></i>
+        <p>Votre panier est vide</p>
+        <small>Ajoutez des produits pour commencer</small>
+      </div>
+
+      <!-- Tableau Panier -->
+      <div *ngIf="panier.length > 0" class="panier-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Couleur</th>
+              <th>Qté</th>
+              <th>Prix</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of panier; let i = index">
+              <td>
+                <div class="produit-cell">
+                  <strong>{{ item.nomModele }}</strong>
+                  <small>Taille: {{ item.taille }}</small>
+                </div>
+              </td>
+              <td>
+                <span class="couleur-badge" [style.background-color]="item.couleur">
+                  {{ item.couleur }}
+                </span>
+              </td>
+              <td>{{ item.quantite }}</td>
+              <td>{{ formatPrice(item.prixUnitaire) }}</td>
+              <td class="total-cell">{{ formatPrice(item.total) }}</td>
+              <td>
+                <button class="btn-remove" (click)="retirerDuPanier(i)" type="button">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Total Commande -->
+        <div class="total-commande">
+          <span>Total Commande</span>
+          <span class="total-value">{{ formatPrice(getTotalCommande()) }}</span>
+        </div>
+
+        <!-- Bouton Valider -->
+        <button
+          type="button"
+          class="btn-valider"
+          (click)="passerCommande()"
+          [disabled]="isLoading">
+          <i class="bi" [ngClass]="isLoading ? 'bi-hourglass-split' : 'bi-check-circle'"></i>
+          <span class="ms-2">{{ isLoading ? 'Traitement...' : 'Valider la Commande' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sélection Produit -->
+  <div *ngIf="showProductModal" class="modal-overlay" (click)="closeProductModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="bi bi-basket me-2"></i>
+          Ajouter au Panier
+        </h2>
+        <button class="modal-close" (click)="closeProductModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="produit-details">
+          <h3>{{ selectedProduit?.modele?.nom_modele }}</h3>
+          <div class="details-row">
+            <span class="detail-item">
+              <i class="bi bi-tag me-1"></i>
+              {{ selectedProduit?.modele?.type }}
+            </span>
+            <span class="detail-item">
+              <i class="bi bi-rulers me-1"></i>
+              Taille {{ selectedProduit?.taille?.libelle }}
+            </span>
+            <span class="detail-item">
+              <i class="bi bi-box-seam me-1"></i>
+              Stock: {{ selectedProduit?.quantite }}
+            </span>
+          </div>
+          <div class="prix-detail">
+            {{ formatPrice(selectedProduit?.modele?.prix_unitaire || 0) }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <i class="bi bi-palette me-2"></i>
+            Choisir une Couleur *
+          </label>
+          <div class="couleurs-grid">
+            <div *ngFor="let couleur of couleurs"
+                 class="couleur-option"
+                 [class.selected]="selectedCouleur === couleur.nom"
+                 (click)="selectedCouleur = couleur.nom">
+              <div class="couleur-circle" [style.background-color]="couleur.code"></div>
+              <span>{{ couleur.nom }}</span>
+            </div>
+          </div>
+
+          <!-- Section pour ajouter une couleur personnalisée -->
+          <div class="add-couleur-section">
+            <h4 class="add-couleur-title">
+              <i class="bi bi-plus-circle me-2"></i>
+              Ajouter une nouvelle couleur
+            </h4>
+            <div class="add-couleur-form">
+              <div class="couleur-input-group">
+                <input
+                  type="text"
+                  class="couleur-name-input"
+                  [(ngModel)]="nouvelleCouleurNom"
+                  placeholder="Nom de la couleur"
+                  (keyup.enter)="ajouterCouleur()">
+                <input
+                  type="color"
+                  class="couleur-picker"
+                  [(ngModel)]="nouvelleCouleurCode">
+                <button type="button" class="btn-add-couleur" (click)="ajouterCouleur()">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="quantite">
+            <i class="bi bi-hash me-2"></i>
+            Quantité *
+          </label>
+          <div class="quantite-control">
+            <button type="button" class="btn-qty" (click)="selectedQuantite = selectedQuantite > 1 ? selectedQuantite - 1 : 1">
+              <i class="bi bi-dash"></i>
+            </button>
+            <input
+              type="number"
+              id="quantite"
+              class="qty-input"
+              [(ngModel)]="selectedQuantite"
+              min="1"
+              [max]="selectedProduit?.quantite || 0">
+            <button type="button" class="btn-qty" (click)="selectedQuantite = selectedQuantite + 1">
+              <i class="bi bi-plus"></i>
+            </button>
+          </div>
+          <small class="stock-info">Stock disponible: {{ selectedProduit?.quantite }} pièces</small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel-modal" (click)="closeProductModal()">
+            <i class="bi bi-x-circle me-2"></i>
+            Annuler
+          </button>
+          <button type="button" class="btn-submit" (click)="ajouterAuPanier()">
+            <i class="bi bi-cart-plus me-2"></i>
+            Ajouter au Panier
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

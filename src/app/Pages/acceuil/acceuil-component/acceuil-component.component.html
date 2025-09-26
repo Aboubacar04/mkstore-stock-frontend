@@ -1,0 +1,247 @@
+<!-- acceuil-component.component.html -->
+<div class="accueil-container">
+  <!-- Dashboard Header avec design amélioré -->
+  <section class="dashboard-header">
+    <div class="welcome-section">
+      <div class="header-decoration">
+        <div class="decoration-circle circle-1"></div>
+        <div class="decoration-circle circle-2"></div>
+        <div class="decoration-circle circle-3"></div>
+      </div>
+      <div class="header-content-wrapper">
+        <div class="brand-logo">
+          <i class="bi bi-shop-window"></i>
+        </div>
+        <h1 class="dashboard-title">MK STORE</h1>
+        <div class="title-underline"></div>
+        <p class="dashboard-subtitle">Tableau de Bord - Gestion de Stock & Commandes</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section avec design amélioré -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div *ngFor="let stat of stats; let i = index"
+           class="stat-card"
+           [style.border-color]="stat.color"
+           [style.animation-delay]="i * 0.1 + 's'">
+        <div class="stat-icon" [style.background-color]="stat.color">
+          <i [class]="'bi ' + stat.icon"></i>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-value">{{ stat.value }}</h3>
+          <p class="stat-label">{{ stat.label }}</p>
+        </div>
+        <div class="stat-trend">
+          <i class="bi bi-arrow-up-right"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions avec badges -->
+  <section class="actions-section">
+    <div class="section-header-fancy">
+      <div class="header-line"></div>
+      <h2 class="section-title">
+        <i class="bi bi-lightning-charge-fill me-2"></i>
+        Actions Rapides
+      </h2>
+      <div class="header-line"></div>
+    </div>
+    <div class="actions-grid">
+      <button class="action-card" routerLink="/modeles">
+        <div class="card-glow"></div>
+        <div class="action-illustration modele-illustration">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <rect x="50" y="30" width="100" height="140" rx="10" fill="#F7B893" opacity="0.3"/>
+            <path d="M 70 50 Q 100 70, 130 50" stroke="#F7B893" stroke-width="3" fill="none"/>
+            <rect x="80" y="80" width="40" height="60" fill="#F7B893"/>
+            <circle cx="100" cy="110" r="15" fill="#EEDFCA"/>
+          </svg>
+        </div>
+        <h3>Modèles</h3>
+        <p>Gérer les modèles de vêtements</p>
+        <div class="action-arrow">
+          <i class="bi bi-arrow-right"></i>
+        </div>
+      </button>
+
+      <button class="action-card" routerLink="/tailles">
+        <div class="card-glow"></div>
+        <div class="action-illustration taille-illustration">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <line x1="40" y1="60" x2="160" y2="60" stroke="#F7B893" stroke-width="4"/>
+            <line x1="40" y1="100" x2="160" y2="100" stroke="#F7B893" stroke-width="4"/>
+            <line x1="40" y1="140" x2="160" y2="140" stroke="#F7B893" stroke-width="4"/>
+            <circle cx="50" cy="60" r="8" fill="#e5a682"/>
+            <circle cx="50" cy="100" r="8" fill="#e5a682"/>
+            <circle cx="50" cy="140" r="8" fill="#e5a682"/>
+            <text x="100" y="70" text-anchor="middle" font-size="24" fill="#F7B893" font-weight="bold">SML</text>
+          </svg>
+        </div>
+        <h3>Tailles</h3>
+        <p>Gérer les tailles disponibles</p>
+        <div class="action-arrow">
+          <i class="bi bi-arrow-right"></i>
+        </div>
+      </button>
+
+      <button class="action-card" routerLink="/stocks">
+        <div class="card-glow"></div>
+        <div class="action-illustration stock-illustration">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="120" width="40" height="50" fill="#F7B893" opacity="0.8"/>
+            <rect x="80" y="90" width="40" height="80" fill="#F7B893" opacity="0.9"/>
+            <rect x="130" y="60" width="40" height="110" fill="#F7B893"/>
+            <path d="M 50 40 L 100 20 L 150 40" stroke="#e5a682" stroke-width="3" fill="none"/>
+          </svg>
+        </div>
+        <h3>Stock</h3>
+        <p>Voir et gérer le stock</p>
+        <div class="action-arrow">
+          <i class="bi bi-arrow-right"></i>
+        </div>
+      </button>
+
+      <button class="action-card" routerLink="/commandes">
+        <div class="card-glow"></div>
+        <div class="action-illustration commande-illustration">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <rect x="60" y="70" width="80" height="60" rx="5" fill="none" stroke="#F7B893" stroke-width="4"/>
+            <circle cx="80" cy="150" r="10" fill="#e5a682"/>
+            <circle cx="120" cy="150" r="10" fill="#e5a682"/>
+            <path d="M 60 70 L 50 50 L 70 50" stroke="#F7B893" stroke-width="4" fill="none"/>
+            <line x1="80" y1="90" x2="120" y2="90" stroke="#F7B893" stroke-width="3"/>
+            <line x1="80" y1="110" x2="110" y2="110" stroke="#F7B893" stroke-width="3"/>
+          </svg>
+        </div>
+        <h3>Commandes</h3>
+        <p>Passer des commandes</p>
+        <div class="action-arrow">
+          <i class="bi bi-arrow-right"></i>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <!-- Models Gallery avec effets améliorés -->
+  <section class="gallery-section">
+    <div class="section-header-fancy">
+      <div class="header-line"></div>
+      <h2 class="section-title">
+        <i class="bi bi-collection-fill me-2"></i>
+        Mes Modèles en Stock
+      </h2>
+      <div class="header-line"></div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="spinner-fancy"></div>
+      <p>Chargement des modèles...</p>
+    </div>
+
+    <!-- Models Grid -->
+    <div *ngIf="!isLoading" class="models-grid">
+      <div *ngFor="let modele of modeles; let i = index"
+           class="model-card"
+           [style.animation-delay]="i * 0.1 + 's'">
+        <div class="card-badge">
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <div class="model-image-container">
+          <!-- Image réelle -->
+          <img
+            *ngIf="modele.image && !hasImageError(modele.id_modele)"
+            [src]="getImageUrl(modele.image)"
+            [alt]="modele.nom_modele"
+            class="model-image"
+            (error)="onImageError(modele.id_modele)">
+
+          <!-- Placeholder si pas d'image ou erreur -->
+          <div *ngIf="!modele.image || hasImageError(modele.id_modele)" class="image-placeholder">
+            <i class="bi bi-image"></i>
+            <p>Aucune image</p>
+          </div>
+
+          <!-- Overlay -->
+          <div class="model-overlay">
+            <button class="btn-view" routerLink="/stocks">
+              <i class="bi bi-eye me-2"></i>
+              Voir le Stock
+            </button>
+          </div>
+        </div>
+
+        <div class="model-info">
+          <div class="model-header">
+            <h3 class="model-name">{{ modele.nom_modele }}</h3>
+            <span class="model-type">{{ modele.type }}</span>
+          </div>
+          <div class="model-details">
+            <span class="model-stock">
+              <i class="bi bi-box-seam me-1"></i>
+              {{ modele.total_pieces }} pcs
+            </span>
+            <span class="model-price">
+              {{ formatPrice(modele.prix_unitaire) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && modeles.length === 0" class="empty-state">
+      <div class="empty-icon-wrapper">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <h3>Aucun modèle en stock</h3>
+      <p>Ajoutez vos premiers modèles pour commencer</p>
+      <button class="btn-primary" routerLink="/modeles">
+        <i class="bi bi-plus-circle me-2"></i>
+        Ajouter un Modèle
+      </button>
+    </div>
+  </section>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <div class="footer-logo">
+        <i class="bi bi-shop-window"></i>
+        <span>MK STORE</span>
+      </div>
+      <p class="footer-desc">Votre solution de gestion de stock professionnelle</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Navigation</h4>
+      <ul class="footer-links">
+        <li><a routerLink="/acceuil">Accueil</a></li>
+        <li><a routerLink="/modeles">Modèles</a></li>
+        <li><a routerLink="/tailles">Tailles</a></li>
+        <li><a routerLink="/stocks">Stock</a></li>
+        <li><a routerLink="/passer-commande">Commandes</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <p class="footer-contact">
+        <i class="bi bi-geo-alt-fill"></i> Sangalkam, Dakar, SN
+      </p>
+      <p class="footer-contact">
+        <i class="bi bi-envelope-fill"></i> contact@mkstore.sn
+      </p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; 2025 MK STORE. Tous droits réservés.</p>
+  </div>
+</footer>

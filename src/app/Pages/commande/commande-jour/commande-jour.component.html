@@ -1,0 +1,261 @@
+<div class="commande-jour-container">
+  <!-- Alert Messages -->
+  <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
+    <div class="alert-content">
+      <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span>{{ alertMessage }}</span>
+      <button class="alert-close" (click)="closeAlert()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="bi bi-calendar-check"></i>
+        </div>
+        <div>
+          <h1 class="page-title">Commandes du Jour</h1>
+          <p class="page-subtitle">
+            <i class="bi bi-calendar3 me-2"></i>
+            {{ dateAujourdhui | date: 'EEEE d MMMM y' : '' : 'fr-FR' }}
+          </p>
+        </div>
+      </div>
+      <button class="btn-refresh" (click)="rafraichir()" [disabled]="isLoading">
+        <i class="bi" [ngClass]="isLoading ? 'bi-arrow-clockwise spin' : 'bi-arrow-clockwise'"></i>
+        <span>Actualiser</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card primary">
+      <div class="stat-icon">
+        <i class="bi bi-cart-check"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Commandes du Jour</p>
+        <p class="stat-value">{{ getNombreCommandesDuJour() }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card success">
+      <div class="stat-icon">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Total du Jour</p>
+        <p class="stat-value">{{ formatPrice(getTotalDuJour()) }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card info">
+      <div class="stat-icon">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Moyenne par Commande</p>
+        <p class="stat-value">
+          {{ getNombreCommandesDuJour() > 0 ? formatPrice(getTotalDuJour() / getNombreCommandesDuJour()) : formatPrice(0) }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des commandes...</p>
+  </div>
+
+  <!-- Aucune commande -->
+  <div *ngIf="!isLoading && commandesDuJour.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <h3>Aucune commande aujourd'hui</h3>
+    <p>Il n'y a pas encore de commande pour aujourd'hui</p>
+  </div>
+
+  <!-- Liste des commandes -->
+  <div *ngIf="!isLoading && commandesDuJour.length > 0" class="commandes-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <i class="bi bi-list-ul me-2"></i>
+        Détail des Commandes
+      </h2>
+    </div>
+
+    <div class="commandes-list">
+      <div *ngFor="let commande of getCommandesPaginees(); let i = index"
+           class="commande-item"
+           (click)="openDetailModal(commande)">
+        <div class="commande-numero">
+          <span class="numero-badge">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</span>
+        </div>
+
+        <div class="commande-content">
+          <div class="commande-info">
+            <div class="info-row">
+              <h3 class="commande-id">
+                <i class="bi bi-hash"></i>
+                {{ commande.idCommande }}
+              </h3>
+              <span class="commande-heure">
+                <i class="bi bi-clock"></i>
+                {{ formatTime(commande.date) }}
+              </span>
+            </div>
+
+            <div class="commande-client">
+              <i class="bi bi-person-fill"></i>
+              <span>{{ commande.nomClient }}</span>
+            </div>
+
+            <div class="commande-details">
+              <span class="detail-badge">
+                <i class="bi bi-box-seam"></i>
+                {{ commande.details.length || 0 }} article(s)
+              </span>
+            </div>
+          </div>
+
+          <div class="commande-montant">
+            <span class="montant-label">Total</span>
+            <span class="montant-value">{{ formatPrice(commande.total) }}</span>
+            <button class="btn-voir-detail">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <div class="pagination-info">
+        <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+        <span class="separator">|</span>
+        <span>{{ commandesDuJour.length }} commande(s) au total</span>
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="pagination-btn"
+          (click)="previousPage()"
+          [disabled]="currentPage === 1">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="pagination-number"
+          [class.active]="page === currentPage"
+          [class.dots]="page === -1"
+          (click)="page !== -1 && goToPage(page)"
+          [disabled]="page === -1">
+          {{ page === -1 ? '...' : page }}
+        </button>
+
+        <button
+          class="pagination-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Détails Commande -->
+  <div *ngIf="showDetailModal && commandeSelectionnee" class="modal-overlay" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="bi bi-receipt me-2"></i>
+          Détails de la Commande #{{ commandeSelectionnee.idCommande }}
+        </h2>
+        <button class="modal-close" (click)="closeDetailModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Informations générales -->
+        <div class="info-section">
+          <div class="info-row">
+            <div class="info-item">
+              <i class="bi bi-person-fill"></i>
+              <div>
+                <p class="info-label">Client</p>
+                <p class="info-value">{{ commandeSelectionnee.nomClient }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="bi bi-calendar3"></i>
+              <div>
+                <p class="info-label">Date et Heure</p>
+                <p class="info-value">{{ formatDateTime(commandeSelectionnee.date) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Détails produits -->
+        <div class="produits-section">
+          <h3 class="section-title">
+            <i class="bi bi-box-seam me-2"></i>
+            Articles commandés
+          </h3>
+
+          <div class="produits-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Couleur</th>
+                  <th>Taille</th>
+                  <th>Qté</th>
+                  <th>Prix Unit.</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let detail of commandeSelectionnee.details">
+                  <td>
+                    <strong>{{ detail.nomModele }}</strong>
+                  </td>
+                  <td>
+                    <span class="couleur-badge" [style.background-color]="detail.couleur">
+                      {{ detail.couleur }}
+                    </span>
+                  </td>
+                  <td>{{ detail.taille }}</td>
+                  <td>{{ detail.quantite }}</td>
+                  <td>{{ formatPrice(detail.prixUnitaire) }}</td>
+                  <td class="total-cell">{{ formatPrice(detail.totalLigne) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Total commande -->
+          <div class="total-commande">
+            <span>Total de la Commande</span>
+            <span class="total-value">{{ formatPrice(commandeSelectionnee.total) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-close-modal" (click)="closeDetailModal()">
+          <i class="bi bi-x-circle me-2"></i>
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

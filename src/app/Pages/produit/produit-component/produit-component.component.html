@@ -1,0 +1,256 @@
+<!-- produit-component.component.html -->
+<div class="produit-container">
+  <!-- Alert Messages -->
+  <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
+    <div class="alert-content">
+      <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span>{{ alertMessage }}</span>
+      <button class="alert-close" (click)="closeAlert()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="bi bi-boxes"></i>
+        </div>
+        <div>
+          <h1 class="page-title">Gestion du Stock</h1>
+          <p class="page-subtitle">Gérez les produits par modèle et taille</p>
+        </div>
+      </div>
+      <button class="btn-add" (click)="openAddModal()">
+        <i class="bi bi-plus-circle me-2"></i>
+        Ajouter un produit
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement en cours...</p>
+  </div>
+
+  <!-- Produits Groupés par Modèle -->
+  <div *ngIf="!isLoading" class="produits-section">
+    <!-- Groupe par Modèle -->
+    <div *ngFor="let groupe of produitsGroupes" class="modele-groupe">
+      <!-- Header du Modèle -->
+      <div class="modele-header">
+        <div class="modele-info">
+          <h2 class="modele-nom">
+            <i class="bi bi-box-seam me-2"></i>
+            {{ groupe.modele.nom_modele }}
+          </h2>
+          <span class="modele-type">{{ groupe.modele.type }}</span>
+          <span class="modele-total"
+                [class.total-valid]="getTotalPiecesModele(groupe) === groupe.modele.total_pieces"
+                [class.total-invalid]="getTotalPiecesModele(groupe) !== groupe.modele.total_pieces">
+            <i class="bi bi-layers me-1"></i>
+            Stock: {{ getTotalPiecesModele(groupe) }} / {{ groupe.modele.total_pieces }} pièces
+            <i *ngIf="getTotalPiecesModele(groupe) === groupe.modele.total_pieces"
+               class="bi bi-check-circle-fill ms-1"></i>
+            <i *ngIf="getTotalPiecesModele(groupe) !== groupe.modele.total_pieces"
+               class="bi bi-exclamation-triangle-fill ms-1"></i>
+          </span>
+          <span class="modele-prix">
+            {{ formatPrice(groupe.modele.prix_unitaire) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Produits (Tailles) du Modèle -->
+      <div class="produits-table">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Taille</th>
+              <th>Quantité en Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let produit of groupe.produits" [class.editing-row]="isEditing(produit.id_produit)">
+              <td class="id-cell">#{{ produit.id_produit }}</td>
+
+              <td>
+                <span class="taille-badge">
+                  <i class="bi bi-rulers me-1"></i>
+                  {{ produit.taille?.libelle }}
+                </span>
+              </td>
+
+              <td>
+                <input
+                  *ngIf="isEditing(produit.id_produit)"
+                  type="number"
+                  [(ngModel)]="produit.quantite"
+                  class="edit-input"
+                  min="0"
+                  placeholder="Quantité">
+                <span *ngIf="!isEditing(produit.id_produit)" class="quantite-text">
+                  <i class="bi bi-box me-1"></i>
+                  {{ produit.quantite }} pcs
+                </span>
+              </td>
+
+              <td class="actions-cell">
+                <!-- Mode Normal -->
+                <div *ngIf="!isEditing(produit.id_produit)" class="action-buttons">
+                  <button class="btn-edit" (click)="enableEdit(produit)" title="Modifier">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="btn-delete" (click)="openDeleteModal(produit)" title="Supprimer">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+
+                <!-- Mode Édition -->
+                <div *ngIf="isEditing(produit.id_produit)" class="action-buttons">
+                  <button class="btn-save" (click)="saveEdit(produit)" title="Enregistrer">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button class="btn-cancel" (click)="cancelEdit(produit)" title="Annuler">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="produitsGroupes.length === 0" class="empty-state">
+      <i class="bi bi-inbox"></i>
+      <h3>Aucun produit en stock</h3>
+      <p>Commencez par ajouter votre premier produit</p>
+      <button class="btn-add" (click)="openAddModal()">
+        <i class="bi bi-plus-circle me-2"></i>
+        Ajouter un produit
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Ajout -->
+  <div *ngIf="showAddModal" class="modal-overlay" (click)="closeAddModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="bi bi-plus-circle me-2"></i>
+          Ajouter un nouveau produit
+        </h2>
+        <button class="modal-close" (click)="closeAddModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="addProduit()">
+          <div class="form-group">
+            <label for="modele">
+              <i class="bi bi-box-seam me-2"></i>
+              Modèle *
+            </label>
+            <select
+              id="modele"
+              class="form-control"
+              [(ngModel)]="newProduit.modeleId"
+              name="modele"
+              required>
+              <option value="" disabled selected>Sélectionnez un modèle</option>
+              <option *ngFor="let modele of modeles" [value]="modele.id_modele">
+                {{ modele.nom_modele }} - {{ modele.type }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taille">
+              <i class="bi bi-rulers me-2"></i>
+              Taille *
+            </label>
+            <select
+              id="taille"
+              class="form-control"
+              [(ngModel)]="newProduit.tailleId"
+              name="taille"
+              required>
+              <option value="" disabled selected>Sélectionnez une taille</option>
+              <option *ngFor="let taille of tailles" [value]="taille.id_taille">
+                {{ taille.libelle }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="quantite">
+              <i class="bi bi-box me-2"></i>
+              Quantité en stock *
+            </label>
+            <input
+              type="number"
+              id="quantite"
+              class="form-control"
+              [(ngModel)]="newProduit.quantite"
+              name="quantite"
+              min="0"
+              placeholder="Ex: 50"
+              required>
+            <small class="form-hint">Nombre de pièces disponibles</small>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel-modal" (click)="closeAddModal()">
+              <i class="bi bi-x-circle me-2"></i>
+              Annuler
+            </button>
+            <button type="submit" class="btn-submit">
+              <i class="bi bi-check-circle me-2"></i>
+              Ajouter
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Suppression -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal-content modal-delete" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Confirmer la suppression
+        </h2>
+        <button class="modal-close" (click)="closeDeleteModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+        <p class="product-info">
+          <strong>{{ produitToDelete?.modele?.nom_modele }}</strong> -
+          Taille <strong>{{ produitToDelete?.taille?.libelle }}</strong>
+        </p>
+        <p class="text-warning">Cette action est irréversible.</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel-modal" (click)="closeDeleteModal()">
+          <i class="bi bi-x-circle me-2"></i>
+          Annuler
+        </button>
+        <button type="button" class="btn-danger" (click)="confirmDelete()">
+          <i class="bi bi-trash me-2"></i>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

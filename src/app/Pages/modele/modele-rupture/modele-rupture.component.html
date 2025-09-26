@@ -1,0 +1,191 @@
+<div class="rupture-container">
+  <!-- Sirènes d'alerte animées -->
+  <div class="sirene-container">
+    <div class="sirene sirene-left"></div>
+    <div class="sirene sirene-right"></div>
+  </div>
+
+  <!-- Bandes d'alerte -->
+  <div class="danger-stripes"></div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
+    <div class="alert-content">
+      <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span>{{ alertMessage }}</span>
+      <button class="alert-close" (click)="closeAlert()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header Danger Ultra -->
+  <div class="danger-header-ultra">
+    <div class="glitch-bg"></div>
+    <div class="danger-particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+
+    <div class="header-content">
+      <div class="emergency-icon">
+        <i class="bi bi-radioactive"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title glitch" data-text="ALERTE CRITIQUE STOCK">
+          <span class="danger-badge">URGENT</span>
+          ALERTE CRITIQUE STOCK
+        </h1>
+        <p class="page-subtitle">
+          <span class="blink-text">INTERVENTION IMMÉDIATE REQUISE</span>
+          <span class="separator">|</span>
+          Niveau de menace : ÉLEVÉ
+        </p>
+      </div>
+    </div>
+
+    <button class="btn-refresh-ultra" (click)="rafraichir()" [disabled]="isLoading">
+      <span class="btn-glow"></span>
+      <i class="bi" [ngClass]="isLoading ? 'bi-arrow-clockwise spin' : 'bi-arrow-clockwise'"></i>
+      <span>ACTUALISER</span>
+    </button>
+  </div>
+
+  <!-- Stats Danger Ultra -->
+  <div class="stats-danger-ultra">
+    <div class="stat-mega">
+      <div class="stat-icon-container">
+        <div class="icon-pulse"></div>
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <div class="stat-details">
+        <div class="stat-number-mega">{{ modelesEnRupture.length }}</div>
+        <div class="stat-text">
+          <span>MODÈLE(S) EN DANGER</span>
+          <span class="stat-subtext">Action immédiate requise</span>
+        </div>
+      </div>
+      <div class="danger-level">
+        <div class="level-bar">
+          <div class="level-fill" [style.width]="(modelesEnRupture.length / 10) * 100 + '%'"></div>
+        </div>
+        <span>Niveau de risque</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container-ultra">
+    <div class="loading-rings">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+    </div>
+    <p class="loading-text">ANALYSE DU STOCK EN COURS...</p>
+  </div>
+
+  <!-- Aucun modèle en rupture -->
+  <div *ngIf="!isLoading && modelesEnRupture.length === 0" class="no-rupture-ultra">
+    <div class="success-icon">
+      <i class="bi bi-shield-check"></i>
+    </div>
+    <h3>SITUATION SOUS CONTRÔLE</h3>
+    <p>Tous les stocks sont au niveau optimal</p>
+  </div>
+
+  <!-- Liste des modèles en rupture -->
+  <div *ngIf="!isLoading && modelesEnRupture.length > 0" class="rupture-grid-ultra">
+    <div *ngFor="let modele of modelesEnRupture"
+         class="rupture-card-ultra"
+         [ngClass]="getNiveauCriticite(modele.total_pieces)">
+
+      <!-- Effet Holographique -->
+      <div class="hologram-effect"></div>
+
+      <!-- Alerte Flash -->
+      <div class="alert-flash"></div>
+
+      <!-- Badge de criticité -->
+      <div class="criticite-badge-ultra">
+        <div class="badge-glow"></div>
+        <i class="bi" [ngClass]="getIconeCriticite(modele.total_pieces)"></i>
+        <span>{{ getTexteCriticite(modele.total_pieces) }}</span>
+      </div>
+
+      <!-- Image avec effets -->
+      <div class="modele-image-container-ultra">
+        <div class="scan-line"></div>
+        <img *ngIf="modele.image && !hasImageError(modele.id_modele)"
+             [src]="getImageUrl(modele.image)"
+             [alt]="modele.nom_modele"
+             (error)="onImageError(modele.id_modele)"
+             class="modele-image-ultra">
+        <div *ngIf="!modele.image || hasImageError(modele.id_modele)" class="no-image-ultra">
+          <i class="bi bi-image"></i>
+        </div>
+
+        <!-- Overlay danger avec effet néon -->
+        <div class="danger-overlay-ultra">
+          <div class="neon-border"></div>
+          <div class="warning-icon">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenu -->
+      <div class="modele-content-ultra">
+        <h3 class="modele-nom-ultra">{{ modele.nom_modele }}</h3>
+        <p class="modele-type-ultra">
+          <i class="bi bi-tag"></i>
+          {{ modele.type }}
+        </p>
+
+        <!-- Stock restant avec effet danger -->
+        <div class="stock-info-ultra">
+          <div class="stock-display">
+            <span class="stock-label-ultra">STOCK RESTANT</span>
+            <div class="stock-value-container">
+              <span class="stock-number-ultra">{{ modele.total_pieces }}</span>
+              <span class="stock-unit">pcs</span>
+            </div>
+          </div>
+
+          <div class="danger-gauge">
+            <svg class="gauge-svg" viewBox="0 0 200 120">
+              <path class="gauge-bg" d="M 20 100 A 80 80 0 0 1 180 100"/>
+              <path class="gauge-progress"
+                    [attr.d]="'M 20 100 A 80 80 0 0 1 ' + (20 + (modele.total_pieces / 3) * 160) + ' 100'"
+                    [style.stroke]="modele.total_pieces === 0 ? '#dc3545' : modele.total_pieces <= 1 ? '#ff6b35' : '#ffc107'"/>
+            </svg>
+            <div class="gauge-center">
+              <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prix avec effet néon -->
+        <div class="modele-prix-ultra">
+          <span class="prix-label-ultra">PRIX UNITAIRE</span>
+          <span class="prix-value-ultra">{{ formatPrice(modele.prix_unitaire) }}</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="card-actions-ultra">
+          <button class="btn-reappro-ultra" (click)="reapprovisionner()">
+            <span class="btn-shine"></span>
+            <i class="bi bi-lightning-charge"></i>
+            <span>RÉAPPROVISIONNER</span>
+            <i class="bi bi-arrow-right-circle"></i>
+          </button>
+        </div>
+
+        <!-- Barre de danger pulsante -->
+        <div class="danger-bar"></div>
+      </div>
+    </div>
+  </div>
+</div>

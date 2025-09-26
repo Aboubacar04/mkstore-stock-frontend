@@ -1,0 +1,222 @@
+<div class="list-commande-container">
+  <!-- Alert Messages -->
+  <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
+    <div class="alert-content">
+      <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span>{{ alertMessage }}</span>
+      <button class="alert-close" (click)="closeAlert()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="bi bi-receipt-cutoff"></i>
+        </div>
+        <div>
+          <h1 class="page-title">Liste des Commandes</h1>
+          <p class="page-subtitle">Consultez toutes vos commandes et leurs détails</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-cart-check"></i>
+          </div>
+          <div class="stat-info">
+            <p class="stat-label">Total Commandes</p>
+            <p class="stat-value">{{ commandes.length }}</p>
+          </div>
+        </div>
+        <div class="stat-card total-card">
+          <div class="stat-icon">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <div class="stat-info">
+            <p class="stat-label">Total Général</p>
+            <p class="stat-value">{{ formatPrice(getTotalGeneral()) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des commandes...</p>
+  </div>
+
+  <!-- Liste vide -->
+  <div *ngIf="!isLoading && commandes.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <h3>Aucune commande</h3>
+    <p>Il n'y a aucune commande pour le moment</p>
+  </div>
+
+  <!-- Liste des commandes -->
+  <div *ngIf="!isLoading && commandes.length > 0" class="commandes-section">
+    <div class="commandes-grid">
+      <div *ngFor="let commande of getCommandesPaginees()" class="commande-card" (click)="openDetailModal(commande)">
+        <div class="commande-header">
+          <div class="commande-id">
+            <i class="bi bi-hash"></i>
+            <span>{{ commande.idCommande }}</span>
+          </div>
+          <div class="commande-date">
+            <i class="bi bi-calendar3"></i>
+            <span>{{ formatDate(commande.date) }}</span>
+          </div>
+        </div>
+
+        <div class="commande-client">
+          <i class="bi bi-person-fill"></i>
+          <span>{{ commande.nomClient }}</span>
+        </div>
+
+        <div class="commande-details">
+          <div class="detail-item">
+            <i class="bi bi-box-seam"></i>
+            <span>{{ commande.details.length || 0 }} article(s)</span>
+          </div>
+        </div>
+
+        <div class="commande-footer">
+          <span class="commande-total">{{ formatPrice(commande.total) }}</span>
+          <button class="btn-detail">
+            <i class="bi bi-eye"></i>
+            <span>Détails</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <div class="pagination-info">
+        <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+        <span class="separator">|</span>
+        <span>{{ commandes.length }} commande(s) au total</span>
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="pagination-btn"
+          (click)="previousPage()"
+          [disabled]="currentPage === 1">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="pagination-number"
+          [class.active]="page === currentPage"
+          [class.dots]="page === -1"
+          (click)="page !== -1 && goToPage(page)"
+          [disabled]="page === -1">
+          {{ page === -1 ? '...' : page }}
+        </button>
+
+        <button
+          class="pagination-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Détails Commande -->
+  <div *ngIf="showDetailModal && commandeSelectionnee" class="modal-overlay" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="bi bi-receipt me-2"></i>
+          Détails de la Commande #{{ commandeSelectionnee.idCommande }}
+        </h2>
+        <button class="modal-close" (click)="closeDetailModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Informations générales -->
+        <div class="info-section">
+          <div class="info-row">
+            <div class="info-item">
+              <i class="bi bi-person-fill"></i>
+              <div>
+                <p class="info-label">Client</p>
+                <p class="info-value">{{ commandeSelectionnee.nomClient }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="bi bi-calendar3"></i>
+              <div>
+                <p class="info-label">Date</p>
+                <p class="info-value">{{ formatDate(commandeSelectionnee.date) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Détails produits -->
+        <div class="produits-section">
+          <h3 class="section-title">
+            <i class="bi bi-box-seam me-2"></i>
+            Articles commandés
+          </h3>
+
+          <div class="produits-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Couleur</th>
+                  <th>Taille</th>
+                  <th>Qté</th>
+                  <th>Prix Unit.</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let detail of commandeSelectionnee.details">
+                  <td>
+                    <strong>{{ detail.nomModele }}</strong>
+                  </td>
+                  <td>
+                    <span class="couleur-badge" [style.background-color]="detail.couleur">
+                      {{ detail.couleur }}
+                    </span>
+                  </td>
+                  <td>{{ detail.taille }}</td>
+                  <td>{{ detail.quantite }}</td>
+                  <td>{{ formatPrice(detail.prixUnitaire) }}</td>
+                  <td class="total-cell">{{ formatPrice(detail.totalLigne) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Total commande -->
+          <div class="total-commande">
+            <span>Total de la Commande</span>
+            <span class="total-value">{{ formatPrice(commandeSelectionnee.total) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-close-modal" (click)="closeDetailModal()">
+          <i class="bi bi-x-circle me-2"></i>
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
