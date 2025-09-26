@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ModeleServiceService } from '../../../Service/modele-service.service';
 import { Modele } from '../../../modeles/modele';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-modele-rupture',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,FormsModule],
   templateUrl: './modele-rupture.component.html',
   styleUrl: './modele-rupture.component.css'
 })
