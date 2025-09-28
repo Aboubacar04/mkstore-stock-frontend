@@ -1,0 +1,224 @@
+<div class="login-page-container">
+  <!-- Alert Messages -->
+  <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
+    <div class="alert-content">
+      <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span>{{ alertMessage }}</span>
+      <button class="alert-close" (click)="closeAlert()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="login-container">
+    <!-- Logo et titre -->
+    <div class="login-header">
+      <div class="logo">
+        <i class="bi bi-shop"></i>
+      </div>
+      <h1 class="app-title">Gestion Stock Khady</h1>
+      <p class="app-subtitle">Tableau de bord administrateur</p>
+    </div>
+
+    <!-- Boutons de test (à retirer en production) -->
+    <div class="test-buttons">
+      <button class="btn-test" (click)="testConnection()">
+        <i class="bi bi-wifi"></i>
+        Tester API
+      </button>
+      <button class="btn-test" (click)="fillTestData()">
+        <i class="bi bi-clipboard-data"></i>
+        Remplir Test
+      </button>
+    </div>
+
+    <!-- Card principale -->
+    <div class="auth-card">
+      <!-- Header de la card -->
+      <div class="card-header">
+        <div class="tab-buttons">
+          <button
+            class="tab-btn"
+            [class.active]="!showPasswordReset"
+            (click)="!showPasswordReset || togglePasswordReset()">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Connexion</span>
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="showPasswordReset"
+            (click)="showPasswordReset || togglePasswordReset()">
+            <i class="bi bi-key"></i>
+            <span>Mot de passe</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulaire de connexion -->
+      <div *ngIf="!showPasswordReset" class="card-body">
+        <div class="form-header">
+          <h2>Connexion</h2>
+          <p>Connectez-vous à votre compte administrateur</p>
+        </div>
+
+        <form (ngSubmit)="onLogin()" class="auth-form">
+          <div class="form-group">
+            <label for="email">Adresse email</label>
+            <div class="input-wrapper">
+              <i class="bi bi-envelope"></i>
+              <input
+                type="email"
+                id="email"
+                [(ngModel)]="loginForm.email"
+                name="email"
+                class="form-control"
+                placeholder="Entrez votre email"
+                required
+                autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <div class="input-wrapper">
+              <i class="bi bi-lock"></i>
+              <input
+                type="password"
+                id="password"
+                [(ngModel)]="loginForm.password"
+                name="password"
+                class="form-control"
+                placeholder="Entrez votre mot de passe"
+                required
+                autocomplete="current-password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-login" [disabled]="isLoading">
+            <i class="bi" [ngClass]="isLoading ? 'bi-arrow-clockwise spin' : 'bi-box-arrow-in-right'"></i>
+            <span>{{ isLoading ? 'Connexion...' : 'Se connecter' }}</span>
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <button class="link-forgot" (click)="togglePasswordReset()">
+            <i class="bi bi-question-circle"></i>
+            Mot de passe oublié ?
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulaire de changement de mot de passe -->
+      <div *ngIf="showPasswordReset" class="card-body">
+        <div class="form-header">
+          <h2>Changer le mot de passe</h2>
+          <p>Entrez toutes vos informations pour changer votre mot de passe</p>
+        </div>
+
+        <form (ngSubmit)="onChangePassword()" class="auth-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prenom">Prénom</label>
+              <div class="input-wrapper">
+                <i class="bi bi-person"></i>
+                <input
+                  type="text"
+                  id="prenom"
+                  [(ngModel)]="changePasswordForm.prenom"
+                  name="prenom"
+                  class="form-control"
+                  placeholder="Votre prénom"
+                  required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="nom">Nom</label>
+              <div class="input-wrapper">
+                <i class="bi bi-person-fill"></i>
+                <input
+                  type="text"
+                  id="nom"
+                  [(ngModel)]="changePasswordForm.nom"
+                  name="nom"
+                  class="form-control"
+                  placeholder="Votre nom"
+                  required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="resetEmail">Email</label>
+            <div class="input-wrapper">
+              <i class="bi bi-envelope"></i>
+              <input
+                type="email"
+                id="resetEmail"
+                [(ngModel)]="changePasswordForm.email"
+                name="resetEmail"
+                class="form-control"
+                placeholder="Votre adresse email"
+                required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="telephone">Téléphone</label>
+            <div class="input-wrapper">
+              <i class="bi bi-telephone"></i>
+              <input
+                type="tel"
+                id="telephone"
+                [(ngModel)]="changePasswordForm.telephone"
+                name="telephone"
+                class="form-control"
+                placeholder="Votre numéro de téléphone">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">Nouveau mot de passe</label>
+            <div class="input-wrapper">
+              <i class="bi bi-key"></i>
+              <input
+                type="password"
+                id="newPassword"
+                [(ngModel)]="changePasswordForm.newPassword"
+                name="newPassword"
+                class="form-control"
+                placeholder="Entrez le nouveau mot de passe"
+                required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-login" [disabled]="isLoading">
+            <i class="bi" [ngClass]="isLoading ? 'bi-arrow-clockwise spin' : 'bi-check-circle'"></i>
+            <span>{{ isLoading ? 'Changement...' : 'Changer le mot de passe' }}</span>
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <button class="link-forgot" (click)="togglePasswordReset()">
+            <i class="bi bi-arrow-left"></i>
+            Retour à la connexion
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations de debug -->
+    <div class="debug-info">
+      <div class="debug-card">
+        <h4>Informations de debug</h4>
+        <p><strong>Mode actuel:</strong> {{ showPasswordReset ? 'Changement de mot de passe' : 'Connexion' }}</p>
+        <p><strong>État de chargement:</strong> {{ isLoading ? 'Actif' : 'Inactif' }}</p>
+        <p><strong>Token présent:</strong> {{ hasToken ? 'Oui' : 'Non' }}</p>
+        <p><strong>Utilisateur connecté:</strong> {{ isUserLoggedIn ? 'Oui' : 'Non' }}</p>
+        <div class="debug-actions">
+          <small>Ouvrez la console pour voir les logs détaillés</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

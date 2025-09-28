@@ -7,6 +7,10 @@ import { PasserCommandeComponent } from './Pages/commande/passer-commande/passer
 import { ListCommandeComponent } from './Pages/commande/list-commande/list-commande.component';
 import { CommandeJourComponent } from './Pages/commande/commande-jour/commande-jour.component';
 import { ModeleRuptureComponent } from './Pages/modele/modele-rupture/modele-rupture.component';
+import { CommandeSemaineComponent } from './Pages/commande/commande-semaine/commande-semaine.component';
+import { CommandeMoisComponent } from './Pages/commande/commande-mois/commande-mois.component';
+import { UserPageComponent } from './Pages/user/user-page/user-page.component';
+import { LoginPageComponent } from './Pages/Login/login-page/login-page.component';
 
 
 
@@ -19,5 +23,10 @@ export const routes: Routes = [
 { path: 'passer-commande', component: PasserCommandeComponent},
 { path: 'liste-commande', component: ListCommandeComponent},
 { path: 'commande-du-jour', component: CommandeJourComponent},
-{ path: 'modele-rupture', component: ModeleRuptureComponent}
+{ path: 'modele-rupture', component: ModeleRuptureComponent},
+{ path: 'commande-semaine', component: CommandeSemaineComponent},
+{ path: 'commande-mois', component: CommandeMoisComponent},
+{ path: 'Paramettre-user', component: UserPageComponent},
+{ path: 'login', component: LoginPageComponent},
+
 ];

@@ -1,0 +1,301 @@
+<div class="user-page-container">
+  <!-- Alert Messages -->
+  <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
+    <div class="alert-content">
+      <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span>{{ alertMessage }}</span>
+      <button class="alert-close" (click)="closeAlert()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <div>
+          <h1 class="page-title">Gestion des Utilisateurs</h1>
+          <p class="page-subtitle">
+            <i class="bi bi-person-gear me-2"></i>
+            Paramètres et administration des comptes
+          </p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-refresh" (click)="refreshData()" [disabled]="isLoading">
+          <i class="bi" [ngClass]="isLoading ? 'bi-arrow-clockwise spin' : 'bi-arrow-clockwise'"></i>
+          <span>Actualiser</span>
+        </button>
+        <button class="btn-add" (click)="openCreateModal()">
+          <i class="bi bi-person-plus"></i>
+          <span>Nouvel Utilisateur</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card primary">
+      <div class="stat-icon">
+        <i class="bi bi-people"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Total Utilisateurs</p>
+        <p class="stat-value">{{ getTotalUsers() }}</p>
+        <p class="stat-detail">Comptes actifs</p>
+      </div>
+    </div>
+
+    <div class="stat-card success">
+      <div class="stat-icon">
+        <i class="bi bi-person-badge"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Gérants</p>
+        <p class="stat-value">{{ getUsersByRole('GERANT') }}</p>
+        <p class="stat-detail">Rôle gérant</p>
+      </div>
+    </div>
+
+    <div class="stat-card info">
+      <div class="stat-icon">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Administrateurs</p>
+        <p class="stat-value">{{ getUsersByRole('ADMIN') }}</p>
+        <p class="stat-detail">Rôle admin</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et Recherche -->
+  <div class="filters-section">
+    <div class="filters-content">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Rechercher par nom, prénom ou email..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()">
+      </div>
+
+      <div class="role-filter">
+        <label for="roleFilter">Filtrer par rôle :</label>
+        <select id="roleFilter" [(ngModel)]="selectedRole" (change)="onRoleFilterChange()">
+          <option value="ALL">Tous les rôles</option>
+          <option value="GERANT">Gérants</option>
+          <option value="ADMIN">Administrateurs</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des utilisateurs...</p>
+  </div>
+
+  <!-- Liste des utilisateurs -->
+  <div *ngIf="!isLoading" class="users-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <i class="bi bi-list-ul me-2"></i>
+        Liste des Utilisateurs
+        <span class="badge-count">{{ filteredUsers.length }}</span>
+      </h2>
+    </div>
+
+    <!-- Aucun utilisateur -->
+    <div *ngIf="filteredUsers.length === 0" class="empty-state">
+      <i class="bi bi-person-x"></i>
+      <h3>Aucun utilisateur trouvé</h3>
+      <p>Aucun utilisateur ne correspond à vos critères de recherche</p>
+    </div>
+
+    <!-- Grid des utilisateurs -->
+    <div *ngIf="filteredUsers.length > 0" class="users-grid">
+      <div *ngFor="let user of getPaginatedUsers()" class="user-card">
+        <div class="user-header">
+          <div class="user-avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <div class="user-info">
+            <h3 class="user-name">{{ user.prenom }} {{ user.nom }}</h3>
+            <p class="user-email">{{ user.email }}</p>
+          </div>
+          <div class="user-role">
+            <span class="role-badge" [ngClass]="user.role.toLowerCase()">
+              <i class="bi" [ngClass]="user.role === 'ADMIN' ? 'bi-shield-fill' : 'bi-person-badge'"></i>
+              {{ user.role }}
+            </span>
+          </div>
+        </div>
+
+        <div class="user-details">
+          <div class="detail-item" *ngIf="user.telephone">
+            <i class="bi bi-telephone"></i>
+            <span>{{ user.telephone }}</span>
+          </div>
+          <div class="detail-item" *ngIf="user.createdAt">
+            <i class="bi bi-calendar-plus"></i>
+            <span>Créé le {{ user.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="user-actions">
+          <button class="btn-edit" (click)="openEditModal(user)" title="Modifier">
+            <i class="bi bi-pencil"></i>
+            <span>Modifier</span>
+          </button>
+          <button class="btn-delete" (click)="deleteUser(user)" title="Supprimer">
+            <i class="bi bi-trash"></i>
+            <span>Supprimer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <div class="pagination-info">
+        <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+        <span class="separator">|</span>
+        <span>{{ filteredUsers.length }} utilisateur(s) au total</span>
+      </div>
+
+      <div class="pagination-controls">
+        <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <button
+          *ngFor="let page of [].constructor(totalPages); let i = index"
+          class="pagination-number"
+          [class.active]="i + 1 === currentPage"
+          (click)="goToPage(i + 1)">
+          {{ i + 1 }}
+        </button>
+
+        <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Formulaire Utilisateur -->
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="bi" [ngClass]="isEditMode ? 'bi-person-gear' : 'bi-person-plus'"></i>
+          {{ isEditMode ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}
+        </h2>
+        <button class="modal-close" (click)="closeModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="saveUser()" class="user-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prenom">Prénom *</label>
+              <input
+                type="text"
+                id="prenom"
+                [(ngModel)]="userForm.prenom"
+                name="prenom"
+                class="form-control"
+                placeholder="Entrez le prénom"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="nom">Nom *</label>
+              <input
+                type="text"
+                id="nom"
+                [(ngModel)]="userForm.nom"
+                name="nom"
+                class="form-control"
+                placeholder="Entrez le nom"
+                required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="userForm.email"
+              name="email"
+              class="form-control"
+              placeholder="Entrez l'adresse email"
+              required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="telephone">Téléphone</label>
+              <input
+                type="tel"
+                id="telephone"
+                [(ngModel)]="userForm.telephone"
+                name="telephone"
+                class="form-control"
+                placeholder="Entrez le numéro">
+            </div>
+
+            <div class="form-group">
+              <label for="role">Rôle *</label>
+              <select
+                id="role"
+                [(ngModel)]="userForm.role"
+                name="role"
+                class="form-control"
+                required>
+                <option value="GERANT">Gérant</option>
+                <option value="ADMIN">Administrateur</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">
+              {{ isEditMode ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe *' }}
+            </label>
+            <input
+              type="password"
+              id="password"
+              [(ngModel)]="userForm.password"
+              name="password"
+              class="form-control"
+              [placeholder]="isEditMode ? 'Laissez vide pour ne pas changer' : 'Entrez le mot de passe'"
+              [required]="!isEditMode">
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="closeModal()">
+              <i class="bi bi-x-circle"></i>
+              <span>Annuler</span>
+            </button>
+            <button type="submit" class="btn-save" [disabled]="isLoading">
+              <i class="bi" [ngClass]="isLoading ? 'bi-arrow-clockwise spin' : (isEditMode ? 'bi-check-circle' : 'bi-plus-circle')"></i>
+              <span>{{ isLoading ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

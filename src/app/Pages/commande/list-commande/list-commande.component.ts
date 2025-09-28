@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommandeServiceService } from '../../../Service/commande-service.service';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 // Modèles
 export class DetailCommande {
@@ -25,7 +26,7 @@ export class Commande {
 @Component({
   selector: 'app-list-commande',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule,FormsModule,RouterModule],
   templateUrl: './list-commande.component.html',
   styleUrl: './list-commande.component.css'
 })
@@ -34,6 +35,9 @@ export class ListCommandeComponent implements OnInit {
   commandeSelectionnee: Commande | null = null;
   showDetailModal: boolean = false;
   isLoading: boolean = false;
+
+  // Propriétés de filtrage
+  periodeFiltre: 'tous' | 'journee' | 'hebdomadaire' | 'mensuel' = 'tous';
 
   // Pagination
   currentPage: number = 1;
@@ -68,16 +72,111 @@ export class ListCommandeComponent implements OnInit {
     });
   }
 
-  // Calculer le nombre total de pages
-  calculateTotalPages(): void {
-    this.totalPages = Math.ceil(this.commandes.length / this.itemsPerPage);
+  // Méthode de filtrage par période
+  filtrerParPeriode(periode: string): void {
+    this.periodeFiltre = periode as any;
+    this.currentPage = 1; // Réinitialiser la pagination
+    this.calculateTotalPages(); // Recalculer le nombre de pages
   }
 
-  // Obtenir les commandes de la page actuelle
+  // Obtenir les commandes filtrées
+  getCommandesFiltrees(): Commande[] {
+    if (this.periodeFiltre === 'tous') {
+      return this.commandes;
+    }
+
+    const aujourd_hui = new Date();
+    aujourd_hui.setHours(0, 0, 0, 0);
+
+    return this.commandes.filter(commande => {
+      const dateCommande = new Date(commande.date);
+      dateCommande.setHours(0, 0, 0, 0);
+
+      switch (this.periodeFiltre) {
+        case 'journee':
+          // Commandes d'aujourd'hui uniquement
+          return dateCommande.getTime() === aujourd_hui.getTime();
+
+        case 'hebdomadaire':
+          // Commandes de la semaine courante (dimanche au samedi)
+          const debutSemaine = new Date(aujourd_hui);
+          const jourSemaine = aujourd_hui.getDay();
+          debutSemaine.setDate(aujourd_hui.getDate() - jourSemaine);
+          const finSemaine = new Date(debutSemaine);
+          finSemaine.setDate(debutSemaine.getDate() + 6);
+          finSemaine.setHours(23, 59, 59, 999);
+          return dateCommande >= debutSemaine && dateCommande <= finSemaine;
+
+        case 'mensuel':
+          // Commandes du mois courant
+          return dateCommande.getMonth() === aujourd_hui.getMonth()
+            && dateCommande.getFullYear() === aujourd_hui.getFullYear();
+
+        default:
+          return true;
+      }
+    });
+  }
+
+  // Compter les commandes par période
+  getCountByPeriode(periode: string): number {
+    const periodeSauvegardee = this.periodeFiltre;
+    this.periodeFiltre = periode as any;
+    const count = this.getCommandesFiltrees().length;
+    this.periodeFiltre = periodeSauvegardee;
+    return count;
+  }
+
+  // Calculer le total général des commandes filtrées
+  getTotalGeneralFiltre(): number {
+    return this.getCommandesFiltrees().reduce((total, commande) =>
+      total + (commande.total || 0), 0
+    );
+  }
+
+  // Obtenir le texte d'information du filtre
+  getFilterInfoText(): string {
+    const aujourd_hui = new Date();
+
+    switch (this.periodeFiltre) {
+      case 'journee':
+        return `Affichage des commandes du ${aujourd_hui.toLocaleDateString('fr-FR')}`;
+
+      case 'hebdomadaire':
+        const debutSemaine = new Date(aujourd_hui);
+        const jourSemaine = aujourd_hui.getDay();
+        debutSemaine.setDate(aujourd_hui.getDate() - jourSemaine);
+        const finSemaine = new Date(debutSemaine);
+        finSemaine.setDate(debutSemaine.getDate() + 6);
+        return `Affichage des commandes du ${debutSemaine.toLocaleDateString('fr-FR')} au ${finSemaine.toLocaleDateString('fr-FR')}`;
+
+      case 'mensuel':
+        const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+        const mois = aujourd_hui.toLocaleDateString('fr-FR', options);
+        return `Affichage des commandes de ${mois}`;
+
+      default:
+        return 'Affichage de toutes les commandes';
+    }
+  }
+
+  // Calculer le nombre total de pages (mise à jour pour prendre en compte le filtre)
+  calculateTotalPages(): void {
+    const commandesFiltrees = this.getCommandesFiltrees();
+    this.totalPages = Math.ceil(commandesFiltrees.length / this.itemsPerPage);
+
+    // Si la page courante dépasse le nombre total de pages après filtrage
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    }
+  }
+
+  // Obtenir les commandes de la page actuelle (mise à jour pour prendre en compte le filtre)
   getCommandesPaginees(): Commande[] {
+    const commandesFiltrees = this.getCommandesFiltrees();
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    return this.commandes.slice(startIndex, endIndex);
+    return commandesFiltrees.slice(startIndex, endIndex);
   }
 
   // Navigation pagination

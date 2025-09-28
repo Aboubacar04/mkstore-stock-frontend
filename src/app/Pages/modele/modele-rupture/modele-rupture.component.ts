@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ModeleServiceService } from '../../../Service/modele-service.service';
 import { Modele } from '../../../modeles/modele';
 import { FormsModule } from '@angular/forms';
 
+
 @Component({
   selector: 'app-modele-rupture',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './modele-rupture.component.html',
   styleUrl: './modele-rupture.component.css'
 })

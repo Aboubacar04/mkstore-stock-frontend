@@ -1,4 +1,4 @@
-<div class="list-commande-container">
+<div class="commande-mois-container">
   <!-- Alert Messages -->
   <div *ngIf="showAlert" class="alert-container" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
     <div class="alert-content">
@@ -15,160 +15,134 @@
     <div class="header-content">
       <div class="header-left">
         <div class="header-icon">
-          <i class="bi bi-receipt-cutoff"></i>
-        </div>
-        <div>
-          <h1 class="page-title">Liste des Commandes</h1>
-          <p class="page-subtitle">Consultez toutes vos commandes et leurs détails</p>
-        </div>
-      </div>
-      <div class="header-stats">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="bi bi-cart-check"></i>
-          </div>
-          <div class="stat-info">
-            <p class="stat-label">Total Commandes</p>
-            <p class="stat-value">{{ getCommandesFiltrees().length }}</p>
-          </div>
-        </div>
-        <div class="stat-card total-card">
-          <div class="stat-icon">
-            <i class="bi bi-cash-stack"></i>
-          </div>
-          <div class="stat-info">
-            <p class="stat-label">Total Général</p>
-            <p class="stat-value">{{ formatPrice(getTotalGeneralFiltre()) }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section Navigation et Filtres -->
-  <div class="navigation-section">
-    <div class="nav-header">
-      <h3 class="nav-title">
-        <i class="bi bi-compass"></i>
-        Navigation rapide
-      </h3>
-      <p class="nav-subtitle">Accédez rapidement aux commandes par période</p>
-    </div>
-    <div class="nav-buttons">
-      <a routerLink="/commande-du-jour" class="nav-btn nav-jour">
-        <div class="nav-icon">
-          <i class="bi bi-sun"></i>
-        </div>
-        <div class="nav-content">
-          <span class="nav-label">Commandes du jour</span>
-          <span class="nav-desc">Voir les commandes d'aujourd'hui</span>
-        </div>
-        <i class="bi bi-arrow-right-circle nav-arrow"></i>
-      </a>
-      <a routerLink="/commande-semaine" class="nav-btn nav-semaine">
-        <div class="nav-icon">
-          <i class="bi bi-calendar-week"></i>
-        </div>
-        <div class="nav-content">
-          <span class="nav-label">Commandes de la semaine</span>
-          <span class="nav-desc">Voir les commandes hebdomadaires</span>
-        </div>
-        <i class="bi bi-arrow-right-circle nav-arrow"></i>
-      </a>
-      <a routerLink="/commande-mois" class="nav-btn nav-mois">
-        <div class="nav-icon">
           <i class="bi bi-calendar-month"></i>
         </div>
-        <div class="nav-content">
-          <span class="nav-label">Commandes du mois</span>
-          <span class="nav-desc">Voir les commandes mensuelles</span>
+        <div>
+          <h1 class="page-title">Commandes du Mois</h1>
+          <p class="page-subtitle">
+            <i class="bi bi-calendar-range me-2"></i>
+            {{ formatPeriodeMois() }}
+          </p>
         </div>
-        <i class="bi bi-arrow-right-circle nav-arrow"></i>
-      </a>
+      </div>
+      <button class="btn-refresh" (click)="rafraichir()" [disabled]="isLoading">
+        <i class="bi" [ngClass]="isLoading ? 'bi-arrow-clockwise spin' : 'bi-arrow-clockwise'"></i>
+        <span>Actualiser</span>
+      </button>
     </div>
   </div>
 
-  <!-- Filtres de période -->
-  <div class="filter-section">
-    <div class="filter-header">
-      <h3 class="filter-title">
-        <i class="bi bi-funnel"></i>
-        Filtrer cette page
-      </h3>
-      <p class="filter-subtitle">Filtrer les commandes affichées sur cette page</p>
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card primary">
+      <div class="stat-icon">
+        <i class="bi bi-cart-check"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Total Commandes</p>
+        <p class="stat-value">{{ getNombreCommandesMois() }}</p>
+        <p class="stat-detail">Ce mois</p>
+      </div>
     </div>
-    <div class="filter-buttons">
-      <button
-        class="filter-btn"
-        [class.active]="periodeFiltre === 'journee'"
-        (click)="filtrerParPeriode('journee')">
-        <i class="bi bi-sun"></i>
-        <span>Aujourd'hui</span>
-        <span class="filter-count">{{ getCountByPeriode('journee') }}</span>
-      </button>
-      <button
-        class="filter-btn"
-        [class.active]="periodeFiltre === 'hebdomadaire'"
-        (click)="filtrerParPeriode('hebdomadaire')">
-        <i class="bi bi-calendar-week"></i>
-        <span>Cette semaine</span>
-        <span class="filter-count">{{ getCountByPeriode('hebdomadaire') }}</span>
-      </button>
-      <button
-        class="filter-btn"
-        [class.active]="periodeFiltre === 'mensuel'"
-        (click)="filtrerParPeriode('mensuel')">
-        <i class="bi bi-calendar-month"></i>
-        <span>Ce mois</span>
-        <span class="filter-count">{{ getCountByPeriode('mensuel') }}</span>
-      </button>
-      <button
-        class="filter-btn reset-btn"
-        [class.active]="periodeFiltre === 'tous'"
-        (click)="filtrerParPeriode('tous')">
-        <i class="bi bi-arrow-clockwise"></i>
-        <span>Toutes</span>
-        <span class="filter-count">{{ commandes.length }}</span>
-      </button>
+
+    <div class="stat-card success">
+      <div class="stat-icon">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Total Mois</p>
+        <p class="stat-value">{{ formatPrice(getTotalMois()) }}</p>
+        <p class="stat-detail">Chiffre d'affaires</p>
+      </div>
     </div>
-    <div class="filter-info" *ngIf="periodeFiltre !== 'tous'">
-      <i class="bi bi-info-circle"></i>
-      <span>{{ getFilterInfoText() }}</span>
+
+    <div class="stat-card info">
+      <div class="stat-icon">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Moyenne/Commande</p>
+        <p class="stat-value">
+          {{ getNombreCommandesMois() > 0 ? formatPrice(getTotalMois() / getNombreCommandesMois()) : formatPrice(0) }}
+        </p>
+        <p class="stat-detail">Panier moyen</p>
+      </div>
+    </div>
+
+    <div class="stat-card warning">
+      <div class="stat-icon">
+        <i class="bi bi-calendar-day"></i>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Moyenne/Jour</p>
+        <p class="stat-value">
+          {{ formatPrice(getMoyenneJournaliere()) }}
+        </p>
+        <p class="stat-detail">Depuis le début</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Répartition par semaine -->
+  <div class="resume-mois">
+    <h3 class="resume-title">
+      <i class="bi bi-bar-chart-line"></i>
+      Répartition par semaine
+    </h3>
+    <div class="semaines-grid">
+      <div *ngFor="let semaine of semainesDuMois; let i = index"
+           class="semaine-card"
+           [class.semaine-actuelle]="i === 0">
+        <div class="semaine-header">
+          <span class="semaine-nom">Semaine {{ semaine.numero }}</span>
+          <span class="semaine-count">{{ getCommandesParSemaine(semaine.numero).length }}</span>
+        </div>
+        <div class="semaine-periode">
+          {{ formatPlageSemaine(semaine.numero) }}
+        </div>
+        <div class="semaine-total">
+          {{ formatPrice(getTotalParSemaine(semaine.numero)) }}
+        </div>
+        <div class="semaine-progress">
+          <div class="progress-bar"
+               [style.width]="getPourcentageSemaine(semaine.numero) + '%'"
+               [style.background-color]="'#F7B893'">
+          </div>
+        </div>
+        <div class="semaine-pourcentage">
+          {{ getPourcentageSemaine(semaine.numero).toFixed(1) }}%
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Loading -->
   <div *ngIf="isLoading" class="loading-container">
     <div class="spinner"></div>
-    <p>Chargement des commandes...</p>
+    <p>Chargement des commandes du mois...</p>
   </div>
 
-  <!-- Liste vide -->
-  <div *ngIf="!isLoading && getCommandesFiltrees().length === 0" class="empty-state">
-    <i class="bi bi-inbox"></i>
-    <h3>Aucune commande</h3>
-    <p *ngIf="periodeFiltre === 'tous'">Il n'y a aucune commande pour le moment</p>
-    <p *ngIf="periodeFiltre === 'journee'">Aucune commande aujourd'hui</p>
-    <p *ngIf="periodeFiltre === 'hebdomadaire'">Aucune commande cette semaine</p>
-    <p *ngIf="periodeFiltre === 'mensuel'">Aucune commande ce mois-ci</p>
-    <button class="btn-reset" (click)="filtrerParPeriode('tous')" *ngIf="periodeFiltre !== 'tous'">
-      <i class="bi bi-arrow-left"></i>
-      Voir toutes les commandes
-    </button>
+  <!-- Aucune commande -->
+  <div *ngIf="!isLoading && commandesMois.length === 0" class="empty-state">
+    <i class="bi bi-calendar-x"></i>
+    <h3>Aucune commande ce mois</h3>
+    <p>Il n'y a pas encore de commande pour {{ formatPeriodeMois() }}</p>
   </div>
 
   <!-- Liste des commandes -->
-  <div *ngIf="!isLoading && getCommandesFiltrees().length > 0" class="commandes-section">
+  <div *ngIf="!isLoading && commandesMois.length > 0" class="commandes-section">
     <div class="section-header">
-      <h3 class="section-title">
-        <i class="bi bi-list-ul"></i>
-        Liste des commandes
-        <span class="badge-count">{{ getCommandesFiltrees().length }}</span>
-      </h3>
+      <h2 class="section-title">
+        <i class="bi bi-list-ul me-2"></i>
+        Liste des Commandes
+        <span class="badge-count">{{ commandesMois.length }}</span>
+      </h2>
     </div>
 
     <div class="commandes-grid">
-      <div *ngFor="let commande of getCommandesPaginees()" class="commande-card" (click)="openDetailModal(commande)">
+      <div *ngFor="let commande of getCommandesPaginees()"
+           class="commande-card"
+           (click)="openDetailModal(commande)">
         <div class="commande-header">
           <div class="commande-id">
             <i class="bi bi-hash"></i>
@@ -176,7 +150,7 @@
           </div>
           <div class="commande-date">
             <i class="bi bi-calendar3"></i>
-            <span>{{ formatDate(commande.date) }}</span>
+            <span>{{ formatDateCourte(commande.date) }}</span>
           </div>
         </div>
 
@@ -189,6 +163,10 @@
           <div class="detail-item">
             <i class="bi bi-box-seam"></i>
             <span>{{ commande.details.length || 0 }} article(s)</span>
+          </div>
+          <div class="detail-item">
+            <i class="bi bi-clock"></i>
+            <span>{{ formatTime(commande.date) }}</span>
           </div>
         </div>
 
@@ -207,7 +185,7 @@
       <div class="pagination-info">
         <span>Page {{ currentPage }} sur {{ totalPages }}</span>
         <span class="separator">|</span>
-        <span>{{ getCommandesFiltrees().length }} commande(s) au total</span>
+        <span>{{ commandesMois.length }} commande(s) au total</span>
       </div>
 
       <div class="pagination-controls">
@@ -265,8 +243,8 @@
             <div class="info-item">
               <i class="bi bi-calendar3"></i>
               <div>
-                <p class="info-label">Date</p>
-                <p class="info-value">{{ formatDate(commandeSelectionnee.date) }}</p>
+                <p class="info-label">Date et Heure</p>
+                <p class="info-value">{{ formatDateTime(commandeSelectionnee.date) }}</p>
               </div>
             </div>
           </div>
