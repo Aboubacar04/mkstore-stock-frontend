@@ -1,0 +1,30 @@
+.btn-retour {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #F7B893;
+  border: 2px solid #EEDFCA;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(247, 184, 147, 0.3);
+}
+
+.btn-retour:hover {
+  background-color: #EEDFCA;
+  border-color: #F7B893;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(247, 184, 147, 0.5);
+}
+
+.btn-retour:active {
+  transform: scale(0.95);
+}
+
+.btn-retour i {
+  font-size: 1.3rem;
+  font-weight: bold;
+}

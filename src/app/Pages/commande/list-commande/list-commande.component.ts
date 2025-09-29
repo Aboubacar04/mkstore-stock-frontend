@@ -36,12 +36,16 @@ export class ListCommandeComponent implements OnInit {
   showDetailModal: boolean = false;
   isLoading: boolean = false;
 
+  // Modal de suppression
+  showDeleteModal: boolean = false;
+  commandeToDelete: Commande | null = null;
+
   // Propriétés de filtrage
   periodeFiltre: 'tous' | 'journee' | 'hebdomadaire' | 'mensuel' = 'tous';
 
   // Pagination
   currentPage: number = 1;
-  itemsPerPage: number = 9; // Nombre de commandes par page
+  itemsPerPage: number = 9;
   totalPages: number = 1;
 
   // Pour les alertes
@@ -75,8 +79,8 @@ export class ListCommandeComponent implements OnInit {
   // Méthode de filtrage par période
   filtrerParPeriode(periode: string): void {
     this.periodeFiltre = periode as any;
-    this.currentPage = 1; // Réinitialiser la pagination
-    this.calculateTotalPages(); // Recalculer le nombre de pages
+    this.currentPage = 1;
+    this.calculateTotalPages();
   }
 
   // Obtenir les commandes filtrées
@@ -94,11 +98,9 @@ export class ListCommandeComponent implements OnInit {
 
       switch (this.periodeFiltre) {
         case 'journee':
-          // Commandes d'aujourd'hui uniquement
           return dateCommande.getTime() === aujourd_hui.getTime();
 
         case 'hebdomadaire':
-          // Commandes de la semaine courante (dimanche au samedi)
           const debutSemaine = new Date(aujourd_hui);
           const jourSemaine = aujourd_hui.getDay();
           debutSemaine.setDate(aujourd_hui.getDate() - jourSemaine);
@@ -108,7 +110,6 @@ export class ListCommandeComponent implements OnInit {
           return dateCommande >= debutSemaine && dateCommande <= finSemaine;
 
         case 'mensuel':
-          // Commandes du mois courant
           return dateCommande.getMonth() === aujourd_hui.getMonth()
             && dateCommande.getFullYear() === aujourd_hui.getFullYear();
 
@@ -160,18 +161,17 @@ export class ListCommandeComponent implements OnInit {
     }
   }
 
-  // Calculer le nombre total de pages (mise à jour pour prendre en compte le filtre)
+  // Calculer le nombre total de pages
   calculateTotalPages(): void {
     const commandesFiltrees = this.getCommandesFiltrees();
     this.totalPages = Math.ceil(commandesFiltrees.length / this.itemsPerPage);
 
-    // Si la page courante dépasse le nombre total de pages après filtrage
     if (this.currentPage > this.totalPages && this.totalPages > 0) {
       this.currentPage = this.totalPages;
     }
   }
 
-  // Obtenir les commandes de la page actuelle (mise à jour pour prendre en compte le filtre)
+  // Obtenir les commandes de la page actuelle
   getCommandesPaginees(): Commande[] {
     const commandesFiltrees = this.getCommandesFiltrees();
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -215,7 +215,7 @@ export class ListCommandeComponent implements OnInit {
         for (let i = 1; i <= 4; i++) {
           pages.push(i);
         }
-        pages.push(-1); // Représente "..."
+        pages.push(-1);
         pages.push(this.totalPages);
       } else if (this.currentPage >= this.totalPages - 2) {
         pages.push(1);
@@ -248,10 +248,43 @@ export class ListCommandeComponent implements OnInit {
     this.showDetailModal = true;
   }
 
-  // Fermer le modal
+  // Fermer le modal des détails
   closeDetailModal(): void {
     this.showDetailModal = false;
     this.commandeSelectionnee = null;
+  }
+
+  // Ouvrir le modal de suppression
+  openDeleteModal(commande: Commande, event: Event): void {
+    event.stopPropagation(); // Empêcher l'ouverture du modal de détails
+    this.commandeToDelete = commande;
+    this.showDeleteModal = true;
+  }
+
+  // Fermer le modal de suppression
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.commandeToDelete = null;
+  }
+
+  // Confirmer la suppression
+  confirmDelete(): void {
+    if (this.commandeToDelete && this.commandeToDelete.idCommande) {
+      this.isLoading = true;
+      this.commandeService.deleteCommande(this.commandeToDelete.idCommande).subscribe({
+        next: () => {
+          this.showAlertMessage('Commande supprimée avec succès !', 'success');
+          this.loadCommandes();
+          this.closeDeleteModal();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression:', error);
+          this.showAlertMessage('Erreur lors de la suppression de la commande', 'error');
+          this.isLoading = false;
+        }
+      });
+    }
   }
 
   // Formater le prix

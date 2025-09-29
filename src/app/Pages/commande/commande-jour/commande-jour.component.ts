@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CommandeServiceService } from '../../../Service/commande-service.service';
 import { FormsModule } from '@angular/forms';
 
+
 // Modèles
 export class DetailCommande {
   idProduit: number = 0;
@@ -25,7 +26,7 @@ export class Commande {
 @Component({
   selector: 'app-commande-jour',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule,],
   templateUrl: './commande-jour.component.html',
   styleUrl: './commande-jour.component.css'
 })

@@ -22,6 +22,9 @@ export class ModeleComponentComponent implements OnInit {
   modeleToDelete: Modele | null = null;
   selectedFile: File | null = null;
 
+  // Fichiers sélectionnés pour l'édition (par ID de modèle)
+  editFiles: { [key: number]: File | null } = {};
+
   // Messages
   alertMessage: string = '';
   alertType: 'success' | 'error' | '' = '';
@@ -70,13 +73,22 @@ export class ModeleComponentComponent implements OnInit {
     this.selectedFile = null;
   }
 
-  // Gérer la sélection de fichier
+  // Gérer la sélection de fichier pour l'ajout
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      // Vous pouvez ajouter ici la logique pour uploader l'image
       this.newModele.image = `/uploads/${file.name}`;
+    }
+  }
+
+  // Gérer la sélection de fichier pour l'édition
+  onEditFileSelected(event: any, modeleId: number): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.editFiles[modeleId] = file;
+      // Optionnel : afficher un aperçu
+      console.log(`Image sélectionnée pour le modèle ${modeleId}:`, file.name);
     }
   }
 
@@ -123,6 +135,7 @@ export class ModeleComponentComponent implements OnInit {
   enableEdit(modele: Modele): void {
     this.editingModele[modele.id_modele] = true;
     this.tempModele[modele.id_modele] = { ...modele };
+    this.editFiles[modele.id_modele] = null; // Réinitialiser le fichier d'édition
   }
 
   // Annuler l'édition
@@ -132,6 +145,7 @@ export class ModeleComponentComponent implements OnInit {
     if (index !== -1 && this.tempModele[modele.id_modele]) {
       this.modeles[index] = { ...this.tempModele[modele.id_modele] };
     }
+    this.editFiles[modele.id_modele] = null; // Nettoyer le fichier
   }
 
   // Sauvegarder les modifications
@@ -148,11 +162,21 @@ export class ModeleComponentComponent implements OnInit {
     formData.append('total_pieces', modele.total_pieces.toString());
     formData.append('prix_unitaire', modele.prix_unitaire.toString());
 
+    // Ajouter l'image si une nouvelle a été sélectionnée
+    if (this.editFiles[modele.id_modele]) {
+      formData.append('image', this.editFiles[modele.id_modele]!);
+    } else {
+      // Si pas de nouvelle image, créer un fichier vide pour garder l'ancienne
+      const emptyFile = new File([''], 'empty.png', { type: 'image/png' });
+      formData.append('image', emptyFile);
+    }
+
     this.isLoading = true;
     this.modeleService.updateModeleWithFormData(modele.id_modele, formData).subscribe({
       next: (response) => {
         this.showAlertMessage('Modèle modifié avec succès !', 'success');
         this.editingModele[modele.id_modele] = false;
+        this.editFiles[modele.id_modele] = null; // Nettoyer le fichier
         this.loadModeles();
         this.isLoading = false;
       },
@@ -224,5 +248,10 @@ export class ModeleComponentComponent implements OnInit {
       currency: 'XOF',
       minimumFractionDigits: 0
     }).format(price);
+  }
+
+  // Obtenir le nom du fichier sélectionné pour l'édition
+  getEditFileName(modeleId: number): string {
+    return this.editFiles[modeleId]?.name || 'Aucune image sélectionnée';
   }
 }

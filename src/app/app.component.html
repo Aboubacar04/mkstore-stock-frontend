@@ -1,2 +1,5 @@
-<app-header-component></app-header-component>
+<!-- Afficher le header seulement si on n'est pas sur la page de login -->
+<app-header-component *ngIf="showHeader"></app-header-component>
+
+<!-- Le contenu des pages -->
 <router-outlet></router-outlet>

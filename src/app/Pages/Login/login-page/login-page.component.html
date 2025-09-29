@@ -20,17 +20,7 @@
       <p class="app-subtitle">Tableau de bord administrateur</p>
     </div>
 
-    <!-- Boutons de test (à retirer en production) -->
-    <div class="test-buttons">
-      <button class="btn-test" (click)="testConnection()">
-        <i class="bi bi-wifi"></i>
-        Tester API
-      </button>
-      <button class="btn-test" (click)="fillTestData()">
-        <i class="bi bi-clipboard-data"></i>
-        Remplir Test
-      </button>
-    </div>
+
 
     <!-- Card principale -->
     <div class="auth-card">
@@ -207,18 +197,6 @@
       </div>
     </div>
 
-    <!-- Informations de debug -->
-    <div class="debug-info">
-      <div class="debug-card">
-        <h4>Informations de debug</h4>
-        <p><strong>Mode actuel:</strong> {{ showPasswordReset ? 'Changement de mot de passe' : 'Connexion' }}</p>
-        <p><strong>État de chargement:</strong> {{ isLoading ? 'Actif' : 'Inactif' }}</p>
-        <p><strong>Token présent:</strong> {{ hasToken ? 'Oui' : 'Non' }}</p>
-        <p><strong>Utilisateur connecté:</strong> {{ isUserLoggedIn ? 'Oui' : 'Non' }}</p>
-        <div class="debug-actions">
-          <small>Ouvrez la console pour voir les logs détaillés</small>
-        </div>
-      </div>
-    </div>
+    
   </div>
 </div>

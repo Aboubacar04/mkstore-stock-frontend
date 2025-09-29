@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { AuthServiceService, LoginRequest, ChangePasswordRequest, AuthResponse }
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.css'
 })
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
 
   // États du composant
   showPasswordReset: boolean = false;
@@ -41,6 +41,15 @@ export class LoginPageComponent {
     private router: Router
   ) {
     console.log('=== LOGIN COMPONENT INITIALISÉ ===');
+  }
+
+  ngOnInit(): void {
+    // IMPORTANT: Nettoyer toutes les données d'authentification
+    // dès qu'on arrive sur la page de login
+    console.log('=== NETTOYAGE DES DONNÉES D\'AUTHENTIFICATION ===');
+    this.authService.forceLogout();
+    console.log('Token et données utilisateur supprimés');
+    console.log('L\'utilisateur doit se reconnecter pour accéder à l\'application');
   }
 
   // Méthodes d'accès au service (pour éviter les erreurs dans le template)
@@ -100,11 +109,11 @@ export class LoginPageComponent {
           console.log('Est admin:', this.authService.isAdmin());
           console.log('Est gérant:', this.authService.isGerant());
 
-          // Redirection après 2 secondes
+          // Redirection après 1 seconde
           setTimeout(() => {
             console.log('Redirection vers la page d\'accueil...');
             this.router.navigate(['/acceuil']);
-          }, 2000);
+          }, 1000);
         } else {
           this.showAlertMessage(response.message, 'error');
         }

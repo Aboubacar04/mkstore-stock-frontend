@@ -139,7 +139,66 @@
 .produits-section {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 3rem;
+}
+
+/* Type Sections (Robes / Ensembles) */
+.type-section {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(247, 184, 147, 0.03));
+  border-radius: 20px;
+  padding: 2rem;
+}
+
+.robes-section {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(247, 184, 147, 0.05));
+}
+
+.ensembles-section {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(247, 184, 147, 0.05));
+}
+
+/* Section Headers */
+.section-header {
+  margin-bottom: 2rem;
+}
+
+.section-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, white, #fefefe);
+  border-radius: 15px;
+  border: 2px solid #F7B893;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.section-title-wrapper i {
+  font-size: 2rem;
+  color: #F7B893;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #F7B893;
+  margin: 0;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 35px;
+  height: 35px;
+  background: linear-gradient(135deg, #F7B893, #e5a682);
+  color: white;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0 0.5rem;
+  box-shadow: 0 4px 10px rgba(247, 184, 147, 0.3);
+  margin-left: auto;
 }
 
 /* Modèle Groupe */
@@ -149,13 +208,36 @@
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   border: 2px solid #EEDFCA;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.modele-groupe:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+/* Différenciation Robes / Ensembles */
+.robe-groupe {
+  border-left: 5px solid #F7B893;
+}
+
+.ensemble-groupe {
+  border-left: 5px solid #F7B893;
 }
 
 /* Header du Modèle */
 .modele-header {
-  background: linear-gradient(135deg, #F7B893 0%, #e5a682 100%);
   padding: 1.5rem;
   color: white;
+}
+
+.robe-header {
+  background: linear-gradient(135deg, #F7B893 0%, #e5a682 100%);
+}
+
+.ensemble-header {
+  background: linear-gradient(135deg, #F7B893 0%, #e5a682 100%);
 }
 
 .modele-info {
@@ -174,11 +256,19 @@
 }
 
 .modele-type {
-  background-color: rgba(255,255,255,0.3);
   padding: 0.4rem 0.8rem;
   border-radius: 15px;
   font-size: 0.9rem;
   font-weight: 600;
+  background-color: rgba(255,255,255,0.3);
+}
+
+.robe-type {
+  background-color: rgba(255,255,255,0.3);
+}
+
+.ensemble-type {
+  background-color: rgba(255,255,255,0.3);
 }
 
 .modele-total {
@@ -263,12 +353,19 @@
 .taille-badge {
   display: inline-flex;
   align-items: center;
-  background-color: #F7B893;
   color: white;
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+.robe-badge {
+  background-color: #F7B893;
+}
+
+.ensemble-badge {
+  background-color: #F7B893;
 }
 
 .quantite-text {
@@ -620,6 +717,16 @@ select.form-control {
     font-size: 1.5rem;
   }
 
+  .section-title-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .count-badge {
+    margin-left: 0;
+  }
+
   .modele-info {
     flex-direction: column;
     align-items: flex-start;
@@ -638,5 +745,9 @@ select.form-control {
     right: 10px;
     left: 10px;
     max-width: none;
+  }
+
+  .type-section {
+    padding: 1rem;
   }
 }

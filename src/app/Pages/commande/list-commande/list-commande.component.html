@@ -167,40 +167,98 @@
       </h3>
     </div>
 
-    <div class="commandes-grid">
-      <div *ngFor="let commande of getCommandesPaginees()" class="commande-card" (click)="openDetailModal(commande)">
-        <div class="commande-header">
-          <div class="commande-id">
-            <i class="bi bi-hash"></i>
-            <span>{{ commande.idCommande }}</span>
-          </div>
-          <div class="commande-date">
-            <i class="bi bi-calendar3"></i>
-            <span>{{ formatDate(commande.date) }}</span>
-          </div>
-        </div>
+    <!-- Remplacer la section commandes-grid par celle-ci -->
+<!-- Remplacer la section commandes-grid par celle-ci -->
+<div class="commandes-grid">
+  <div *ngFor="let commande of getCommandesPaginees()" class="commande-card">
 
-        <div class="commande-client">
-          <i class="bi bi-person-fill"></i>
-          <span>{{ commande.nomClient }}</span>
-        </div>
+    <!-- Bouton suppression discret en haut à droite -->
+    <button
+      class="btn-delete-subtle"
+      (click)="openDeleteModal(commande, $event)"
+      title="Supprimer cette commande">
+      <i class="bi bi-x"></i>
+    </button>
 
-        <div class="commande-details">
-          <div class="detail-item">
-            <i class="bi bi-box-seam"></i>
-            <span>{{ commande.details.length || 0 }} article(s)</span>
+    <!-- Contenu cliquable pour les détails -->
+    <div (click)="openDetailModal(commande)" style="cursor: pointer;">
+      <div class="commande-header">
+        <div class="commande-id">
+          <i class="bi bi-hash"></i>
+          <span>{{ commande.idCommande }}</span>
+        </div>
+        <div class="commande-date">
+          <i class="bi bi-calendar3"></i>
+          <span>{{ formatDate(commande.date) }}</span>
+        </div>
+      </div>
+
+      <div class="commande-client">
+        <i class="bi bi-person-fill"></i>
+        <span>{{ commande.nomClient }}</span>
+      </div>
+
+      <div class="commande-details">
+        <div class="detail-item">
+          <i class="bi bi-box-seam"></i>
+          <span>{{ commande.details.length || 0 }} article(s)</span>
+        </div>
+      </div>
+
+      <div class="commande-footer">
+        <span class="commande-total">{{ formatPrice(commande.total) }}</span>
+        <button class="btn-detail">
+          <i class="bi bi-eye"></i>
+          <span>Détails</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AJOUTER CE MODAL DE SUPPRESSION À LA FIN, AVANT LA FERMETURE DE </div> principale -->
+
+<!-- Modal Suppression Commande -->
+<div *ngIf="showDeleteModal && commandeToDelete" class="modal-overlay" (click)="closeDeleteModal()">
+  <div class="modal-content modal-delete-commande" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Confirmer la suppression
+      </h2>
+      <button class="modal-close" (click)="closeDeleteModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="delete-warning">
+        <i class="bi bi-exclamation-circle"></i>
+        <div>
+          <p class="warning-title">Êtes-vous sûr de vouloir supprimer cette commande ?</p>
+          <div class="commande-info">
+            <p><strong>Commande #{{ commandeToDelete.idCommande }}</strong></p>
+            <p>Client : <strong>{{ commandeToDelete.nomClient }}</strong></p>
+            <p>Date : {{ formatDate(commandeToDelete.date) }}</p>
+            <p>Montant : <strong>{{ formatPrice(commandeToDelete.total) }}</strong></p>
           </div>
-        </div>
-
-        <div class="commande-footer">
-          <span class="commande-total">{{ formatPrice(commande.total) }}</span>
-          <button class="btn-detail">
-            <i class="bi bi-eye"></i>
-            <span>Détails</span>
-          </button>
+          <p class="text-danger">⚠️ Cette action est irréversible et supprimera définitivement cette commande.</p>
         </div>
       </div>
     </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-delete" (click)="closeDeleteModal()">
+        <i class="bi bi-x-circle me-2"></i>
+        Annuler
+      </button>
+      <button type="button" class="btn-confirm-delete" (click)="confirmDelete()" [disabled]="isLoading">
+        <i class="bi" [ngClass]="isLoading ? 'bi-arrow-clockwise spin' : 'bi-trash'"></i>
+        <span>{{ isLoading ? 'Suppression...' : 'Supprimer définitivement' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
 
     <!-- Pagination -->
     <div class="pagination-container" *ngIf="totalPages > 1">

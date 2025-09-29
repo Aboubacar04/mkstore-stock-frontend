@@ -22,6 +22,8 @@ interface ProduitGroupe {
 })
 export class ProduitComponentComponent implements OnInit {
   produitsGroupes: ProduitGroupe[] = [];
+  robesGroupes: ProduitGroupe[] = [];
+  ensemblesGroupes: ProduitGroupe[] = [];
   modeles: Modele[] = [];
   tailles: Taille[] = [];
 
@@ -57,6 +59,7 @@ export class ProduitComponentComponent implements OnInit {
     this.produitService.getAllProduits().subscribe({
       next: (produits: Produit[]) => {
         this.groupProduitsByModele(produits);
+        this.separateGroupesByType();
         this.isLoading = false;
       },
       error: (error) => {
@@ -87,6 +90,16 @@ export class ProduitComponentComponent implements OnInit {
     });
 
     this.produitsGroupes = Array.from(groupes.values());
+  }
+
+  // Séparer les groupes par type (Robe / Ensemble)
+  separateGroupesByType(): void {
+    this.robesGroupes = this.produitsGroupes.filter(
+      groupe => groupe.modele.type.toLowerCase() === 'robe'
+    );
+    this.ensemblesGroupes = this.produitsGroupes.filter(
+      groupe => groupe.modele.type.toLowerCase() === 'ensemble'
+    );
   }
 
   // Charger les modèles pour le select

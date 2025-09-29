@@ -126,30 +126,30 @@
     </div>
   </section>
 
-  <!-- Models Gallery avec effets améliorés -->
-  <section class="gallery-section">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner-fancy"></div>
+    <p>Chargement des modèles...</p>
+  </div>
+
+  <!-- SECTION ROBES -->
+  <section *ngIf="!isLoading && robes.length > 0" class="gallery-section robes-section">
     <div class="section-header-fancy">
       <div class="header-line"></div>
       <h2 class="section-title">
-        <i class="bi bi-collection-fill me-2"></i>
-        Mes Modèles en Stock
+        <i class="bi bi-star-fill me-2"></i>
+        Collection Robes
+        <span class="count-badge">{{ robes.length }}</span>
       </h2>
       <div class="header-line"></div>
     </div>
 
-    <!-- Loading -->
-    <div *ngIf="isLoading" class="loading-container">
-      <div class="spinner-fancy"></div>
-      <p>Chargement des modèles...</p>
-    </div>
-
-    <!-- Models Grid -->
-    <div *ngIf="!isLoading" class="models-grid">
-      <div *ngFor="let modele of modeles; let i = index"
-           class="model-card"
+    <div class="models-grid">
+      <div *ngFor="let modele of robes; let i = index"
+           class="model-card robe-card"
            [style.animation-delay]="i * 0.1 + 's'">
-        <div class="card-badge">
-          <i class="bi bi-star-fill"></i>
+        <div class="card-badge robe-badge">
+          <i class="bi bi-award-fill"></i>
         </div>
         <div class="model-image-container">
           <!-- Image réelle -->
@@ -161,13 +161,18 @@
             (error)="onImageError(modele.id_modele)">
 
           <!-- Placeholder si pas d'image ou erreur -->
-          <div *ngIf="!modele.image || hasImageError(modele.id_modele)" class="image-placeholder">
-            <i class="bi bi-image"></i>
-            <p>Aucune image</p>
+          <div *ngIf="!modele.image || hasImageError(modele.id_modele)" class="image-placeholder robe-placeholder">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="60" y="40" width="80" height="120" rx="8" fill="#F7B893" opacity="0.3"/>
+              <path d="M 70 60 Q 100 80, 130 60" stroke="#F7B893" stroke-width="3" fill="none"/>
+              <rect x="85" y="90" width="30" height="70" fill="#F7B893"/>
+              <circle cx="100" cy="120" r="12" fill="#EEDFCA"/>
+            </svg>
+            <p>Robe</p>
           </div>
 
           <!-- Overlay -->
-          <div class="model-overlay">
+          <div class="model-overlay robe-overlay">
             <button class="btn-view" routerLink="/stocks">
               <i class="bi bi-eye me-2"></i>
               Voir le Stock
@@ -178,7 +183,7 @@
         <div class="model-info">
           <div class="model-header">
             <h3 class="model-name">{{ modele.nom_modele }}</h3>
-            <span class="model-type">{{ modele.type }}</span>
+            <span class="model-type robe-type">{{ modele.type }}</span>
           </div>
           <div class="model-details">
             <span class="model-stock">
@@ -192,20 +197,87 @@
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- Empty State -->
-    <div *ngIf="!isLoading && modeles.length === 0" class="empty-state">
-      <div class="empty-icon-wrapper">
-        <i class="bi bi-box-seam"></i>
+  <!-- SECTION ENSEMBLES -->
+  <section *ngIf="!isLoading && ensembles.length > 0" class="gallery-section ensembles-section">
+    <div class="section-header-fancy">
+      <div class="header-line"></div>
+      <h2 class="section-title">
+        <i class="bi bi-gem me-2"></i>
+        Collection Ensembles
+        <span class="count-badge">{{ ensembles.length }}</span>
+      </h2>
+      <div class="header-line"></div>
+    </div>
+
+    <div class="models-grid">
+      <div *ngFor="let modele of ensembles; let i = index"
+           class="model-card ensemble-card"
+           [style.animation-delay]="i * 0.1 + 's'">
+        <div class="card-badge ensemble-badge">
+          <i class="bi bi-gem"></i>
+        </div>
+        <div class="model-image-container">
+          <!-- Image réelle -->
+          <img
+            *ngIf="modele.image && !hasImageError(modele.id_modele)"
+            [src]="getImageUrl(modele.image)"
+            [alt]="modele.nom_modele"
+            class="model-image"
+            (error)="onImageError(modele.id_modele)">
+
+          <!-- Placeholder si pas d'image ou erreur -->
+          <div *ngIf="!modele.image || hasImageError(modele.id_modele)" class="image-placeholder ensemble-placeholder">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="50" y="30" width="100" height="140" rx="10" fill="#d89673" opacity="0.3"/>
+              <rect x="70" y="60" width="30" height="50" fill="#d89673"/>
+              <rect x="100" y="60" width="30" height="50" fill="#d89673"/>
+              <rect x="70" y="115" width="60" height="55" fill="#d89673" opacity="0.8"/>
+            </svg>
+            <p>Ensemble</p>
+          </div>
+
+          <!-- Overlay -->
+          <div class="model-overlay ensemble-overlay">
+            <button class="btn-view" routerLink="/stocks">
+              <i class="bi bi-eye me-2"></i>
+              Voir le Stock
+            </button>
+          </div>
+        </div>
+
+        <div class="model-info">
+          <div class="model-header">
+            <h3 class="model-name">{{ modele.nom_modele }}</h3>
+            <span class="model-type ensemble-type">{{ modele.type }}</span>
+          </div>
+          <div class="model-details">
+            <span class="model-stock">
+              <i class="bi bi-box-seam me-1"></i>
+              {{ modele.total_pieces }} pcs
+            </span>
+            <span class="model-price">
+              {{ formatPrice(modele.prix_unitaire) }}
+            </span>
+          </div>
+        </div>
       </div>
-      <h3>Aucun modèle en stock</h3>
-      <p>Ajoutez vos premiers modèles pour commencer</p>
-      <button class="btn-primary" routerLink="/modeles">
-        <i class="bi bi-plus-circle me-2"></i>
-        Ajouter un Modèle
-      </button>
     </div>
   </section>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && modeles.length === 0" class="empty-state">
+    <div class="empty-icon-wrapper">
+      <i class="bi bi-box-seam"></i>
+    </div>
+    <h3>Aucun modèle en stock</h3>
+    <p>Ajoutez vos premiers modèles pour commencer</p>
+    <button class="btn-primary" routerLink="/modeles">
+      <i class="bi bi-plus-circle me-2"></i>
+      Ajouter un Modèle
+    </button>
+  </div>
 </div>
 
 <!-- Footer -->

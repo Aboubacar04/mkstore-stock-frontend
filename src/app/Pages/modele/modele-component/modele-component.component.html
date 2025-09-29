@@ -36,115 +36,147 @@
     <p>Chargement en cours...</p>
   </div>
 
-  <!-- Modèles Table -->
-  <div *ngIf="!isLoading" class="table-container">
-    <div class="table-responsive">
-      <table class="modele-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nom du Modèle</th>
-            <th>Type</th>
-            <th>Total Pièces</th>
-            <th>Prix Unitaire</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let modele of modeles" [class.editing-row]="isEditing(modele.id_modele)">
-            <td class="id-cell">#{{ modele.id_modele }}</td>
+ <!-- Modèles Table avec édition d'image -->
+<div *ngIf="!isLoading" class="table-container">
+  <div class="table-responsive">
+    <table class="modele-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom du Modèle</th>
+          <th>Type</th>
+          <th>Total Pièces</th>
+          <th>Prix Unitaire</th>
+          <th>Image</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let modele of modeles" [class.editing-row]="isEditing(modele.id_modele)">
+          <td class="id-cell">#{{ modele.id_modele }}</td>
 
-            <td>
+          <td>
+            <input
+              *ngIf="isEditing(modele.id_modele)"
+              type="text"
+              [(ngModel)]="modele.nom_modele"
+              class="edit-input"
+              placeholder="Nom du modèle">
+            <span *ngIf="!isEditing(modele.id_modele)" class="model-name">
+              {{ modele.nom_modele }}
+            </span>
+          </td>
+
+          <td>
+            <input
+              *ngIf="isEditing(modele.id_modele)"
+              type="text"
+              [(ngModel)]="modele.type"
+              class="edit-input"
+              placeholder="Type">
+            <span *ngIf="!isEditing(modele.id_modele)" class="type-badge">
+              <i class="bi bi-tag-fill me-1"></i>
+              {{ modele.type }}
+            </span>
+          </td>
+
+          <td>
+            <input
+              *ngIf="isEditing(modele.id_modele)"
+              type="number"
+              [(ngModel)]="modele.total_pieces"
+              class="edit-input"
+              min="0">
+            <span *ngIf="!isEditing(modele.id_modele)" class="pieces-count">
+              <i class="bi bi-box-seam me-1"></i>
+              {{ modele.total_pieces }}
+            </span>
+          </td>
+
+          <td>
+            <input
+              *ngIf="isEditing(modele.id_modele)"
+              type="number"
+              [(ngModel)]="modele.prix_unitaire"
+              class="edit-input"
+              min="0">
+            <span *ngIf="!isEditing(modele.id_modele)" class="price">
+              {{ formatPrice(modele.prix_unitaire) }}
+            </span>
+          </td>
+
+          <!-- Nouvelle colonne Image -->
+          <td class="image-cell">
+            <!-- Mode édition : input file -->
+            <div *ngIf="isEditing(modele.id_modele)" class="edit-image-container">
+              <label [for]="'edit-image-' + modele.id_modele" class="edit-image-label">
+                <i class="bi bi-image"></i>
+                <span>Changer l'image</span>
+              </label>
               <input
-                *ngIf="isEditing(modele.id_modele)"
-                type="text"
-                [(ngModel)]="modele.nom_modele"
-                class="edit-input"
-                placeholder="Nom du modèle">
-              <span *ngIf="!isEditing(modele.id_modele)" class="model-name">
-                {{ modele.nom_modele }}
+                [id]="'edit-image-' + modele.id_modele"
+                type="file"
+                (change)="onEditFileSelected($event, modele.id_modele)"
+                accept="image/*"
+                class="edit-file-input"
+                style="display: none;">
+              <small *ngIf="editFiles[modele.id_modele]" class="file-selected">
+                <i class="bi bi-check-circle text-success"></i>
+                {{ editFiles[modele.id_modele]?.name }}
+              </small>
+            </div>
+
+            <!-- Mode normal : afficher l'image actuelle -->
+            <div *ngIf="!isEditing(modele.id_modele)" class="image-display">
+              <span class="image-icon">
+                <i class="bi bi-image"></i>
               </span>
-            </td>
+            </div>
+          </td>
 
-            <td>
-              <input
-                *ngIf="isEditing(modele.id_modele)"
-                type="text"
-                [(ngModel)]="modele.type"
-                class="edit-input"
-                placeholder="Type">
-              <span *ngIf="!isEditing(modele.id_modele)" class="type-badge">
-                <i class="bi bi-tag-fill me-1"></i>
-                {{ modele.type }}
-              </span>
-            </td>
+          <td class="actions-cell">
+            <!-- Mode Normal -->
+            <div *ngIf="!isEditing(modele.id_modele)" class="action-buttons">
+              <button class="btn-edit" (click)="enableEdit(modele)" title="Modifier">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+              <button class="btn-delete" (click)="openDeleteModal(modele)" title="Supprimer">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
 
-            <td>
-              <input
-                *ngIf="isEditing(modele.id_modele)"
-                type="number"
-                [(ngModel)]="modele.total_pieces"
-                class="edit-input"
-                min="0">
-              <span *ngIf="!isEditing(modele.id_modele)" class="pieces-count">
-                <i class="bi bi-box-seam me-1"></i>
-                {{ modele.total_pieces }}
-              </span>
-            </td>
+            <!-- Mode Édition -->
+            <div *ngIf="isEditing(modele.id_modele)" class="action-buttons">
+              <button class="btn-save" (click)="saveEdit(modele)" title="Enregistrer">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button class="btn-cancel" (click)="cancelEdit(modele)" title="Annuler">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
 
-            <td>
-              <input
-                *ngIf="isEditing(modele.id_modele)"
-                type="number"
-                [(ngModel)]="modele.prix_unitaire"
-                class="edit-input"
-                min="0">
-              <span *ngIf="!isEditing(modele.id_modele)" class="price">
-                {{ formatPrice(modele.prix_unitaire) }}
-              </span>
-            </td>
-
-            <td class="actions-cell">
-              <!-- Mode Normal -->
-              <div *ngIf="!isEditing(modele.id_modele)" class="action-buttons">
-                <button class="btn-edit" (click)="enableEdit(modele)" title="Modifier">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <button class="btn-delete" (click)="openDeleteModal(modele)" title="Supprimer">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
-
-              <!-- Mode Édition -->
-              <div *ngIf="isEditing(modele.id_modele)" class="action-buttons">
-                <button class="btn-save" (click)="saveEdit(modele)" title="Enregistrer">
-                  <i class="bi bi-check-lg"></i>
-                </button>
-                <button class="btn-cancel" (click)="cancelEdit(modele)" title="Annuler">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Empty State -->
-          <tr *ngIf="modeles.length === 0">
-            <td colspan="6" class="empty-state-cell">
-              <div class="empty-state">
-                <i class="bi bi-inbox"></i>
-                <h3>Aucun modèle trouvé</h3>
-                <p>Commencez par ajouter votre premier modèle</p>
-                <button class="btn-add" (click)="openAddModal()">
-                  <i class="bi bi-plus-circle me-2"></i>
-                  Ajouter un modèle
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        <!-- Empty State -->
+        <tr *ngIf="modeles.length === 0">
+          <td colspan="7" class="empty-state-cell">
+            <div class="empty-state">
+              <i class="bi bi-inbox"></i>
+              <h3>Aucun modèle trouvé</h3>
+              <p>Commencez par ajouter votre premier modèle</p>
+              <button class="btn-add" (click)="openAddModal()">
+                <i class="bi bi-plus-circle me-2"></i>
+                Ajouter un modèle
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
+</div>
+
+
 
   <!-- Modal Ajout -->
   <div *ngIf="showAddModal" class="modal-overlay" (click)="closeAddModal()">

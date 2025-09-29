@@ -17,6 +17,8 @@ import { FormsModule } from '@angular/forms';
 })
 export class AcceuilComponentComponent implements OnInit {
   modeles: Modele[] = [];
+  robes: Modele[] = [];
+  ensembles: Modele[] = [];
   commandes: Commande[] = [];
   isLoading: boolean = false;
   imageErrors: Set<number> = new Set();
@@ -63,6 +65,7 @@ export class AcceuilComponentComponent implements OnInit {
     this.modeleService.getModele().subscribe({
       next: (response: any) => {
         this.modeles = response.data || response;
+        this.separateModelesByType();
         this.updateStats();
         this.isLoading = false;
       },
@@ -71,6 +74,11 @@ export class AcceuilComponentComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  separateModelesByType(): void {
+    this.robes = this.modeles.filter(m => m.type.toLowerCase() === 'robe');
+    this.ensembles = this.modeles.filter(m => m.type.toLowerCase() === 'ensemble');
   }
 
   loadCommandes(): void {

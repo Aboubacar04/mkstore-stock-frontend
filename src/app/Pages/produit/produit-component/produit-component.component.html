@@ -36,94 +36,206 @@
     <p>Chargement en cours...</p>
   </div>
 
-  <!-- Produits Groupés par Modèle -->
+  <!-- Produits Groupés par Type -->
   <div *ngIf="!isLoading" class="produits-section">
-    <!-- Groupe par Modèle -->
-    <div *ngFor="let groupe of produitsGroupes" class="modele-groupe">
-      <!-- Header du Modèle -->
-      <div class="modele-header">
-        <div class="modele-info">
-          <h2 class="modele-nom">
-            <i class="bi bi-box-seam me-2"></i>
-            {{ groupe.modele.nom_modele }}
-          </h2>
-          <span class="modele-type">{{ groupe.modele.type }}</span>
-          <span class="modele-total"
-                [class.total-valid]="getTotalPiecesModele(groupe) === groupe.modele.total_pieces"
-                [class.total-invalid]="getTotalPiecesModele(groupe) !== groupe.modele.total_pieces">
-            <i class="bi bi-layers me-1"></i>
-            Stock: {{ getTotalPiecesModele(groupe) }} / {{ groupe.modele.total_pieces }} pièces
-            <i *ngIf="getTotalPiecesModele(groupe) === groupe.modele.total_pieces"
-               class="bi bi-check-circle-fill ms-1"></i>
-            <i *ngIf="getTotalPiecesModele(groupe) !== groupe.modele.total_pieces"
-               class="bi bi-exclamation-triangle-fill ms-1"></i>
-          </span>
-          <span class="modele-prix">
-            {{ formatPrice(groupe.modele.prix_unitaire) }}
-          </span>
+
+    <!-- SECTION ROBES -->
+    <div *ngIf="robesGroupes.length > 0" class="type-section robes-section">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <i class="bi bi-star-fill"></i>
+          <h2 class="section-title">Collection Robes</h2>
+          <span class="count-badge">{{ robesGroupes.length }}</span>
         </div>
       </div>
 
-      <!-- Produits (Tailles) du Modèle -->
-      <div class="produits-table">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Taille</th>
-              <th>Quantité en Stock</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let produit of groupe.produits" [class.editing-row]="isEditing(produit.id_produit)">
-              <td class="id-cell">#{{ produit.id_produit }}</td>
+      <!-- Groupes de Robes -->
+      <div *ngFor="let groupe of robesGroupes" class="modele-groupe robe-groupe">
+        <!-- Header du Modèle -->
+        <div class="modele-header robe-header">
+          <div class="modele-info">
+            <h3 class="modele-nom">
+              <i class="bi bi-box-seam me-2"></i>
+              {{ groupe.modele.nom_modele }}
+            </h3>
+            <span class="modele-type robe-type">{{ groupe.modele.type }}</span>
+            <span class="modele-total"
+                  [class.total-valid]="getTotalPiecesModele(groupe) === groupe.modele.total_pieces"
+                  [class.total-invalid]="getTotalPiecesModele(groupe) !== groupe.modele.total_pieces">
+              <i class="bi bi-layers me-1"></i>
+              Stock: {{ getTotalPiecesModele(groupe) }} / {{ groupe.modele.total_pieces }} pcs
+              <i *ngIf="getTotalPiecesModele(groupe) === groupe.modele.total_pieces"
+                 class="bi bi-check-circle-fill ms-1"></i>
+              <i *ngIf="getTotalPiecesModele(groupe) !== groupe.modele.total_pieces"
+                 class="bi bi-exclamation-triangle-fill ms-1"></i>
+            </span>
+            <span class="modele-prix">
+              {{ formatPrice(groupe.modele.prix_unitaire) }}
+            </span>
+          </div>
+        </div>
 
-              <td>
-                <span class="taille-badge">
-                  <i class="bi bi-rulers me-1"></i>
-                  {{ produit.taille?.libelle }}
-                </span>
-              </td>
+        <!-- Produits (Tailles) du Modèle -->
+        <div class="produits-table">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Taille</th>
+                <th>Quantité en Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let produit of groupe.produits" [class.editing-row]="isEditing(produit.id_produit)">
+                <td class="id-cell">#{{ produit.id_produit }}</td>
 
-              <td>
-                <input
-                  *ngIf="isEditing(produit.id_produit)"
-                  type="number"
-                  [(ngModel)]="produit.quantite"
-                  class="edit-input"
-                  min="0"
-                  placeholder="Quantité">
-                <span *ngIf="!isEditing(produit.id_produit)" class="quantite-text">
-                  <i class="bi bi-box me-1"></i>
-                  {{ produit.quantite }} pcs
-                </span>
-              </td>
+                <td>
+                  <span class="taille-badge robe-badge">
+                    <i class="bi bi-rulers me-1"></i>
+                    {{ produit.taille?.libelle }}
+                  </span>
+                </td>
 
-              <td class="actions-cell">
-                <!-- Mode Normal -->
-                <div *ngIf="!isEditing(produit.id_produit)" class="action-buttons">
-                  <button class="btn-edit" (click)="enableEdit(produit)" title="Modifier">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-                  <button class="btn-delete" (click)="openDeleteModal(produit)" title="Supprimer">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
+                <td>
+                  <input
+                    *ngIf="isEditing(produit.id_produit)"
+                    type="number"
+                    [(ngModel)]="produit.quantite"
+                    class="edit-input"
+                    min="0"
+                    placeholder="Quantité">
+                  <span *ngIf="!isEditing(produit.id_produit)" class="quantite-text">
+                    <i class="bi bi-box me-1"></i>
+                    {{ produit.quantite }} pcs
+                  </span>
+                </td>
 
-                <!-- Mode Édition -->
-                <div *ngIf="isEditing(produit.id_produit)" class="action-buttons">
-                  <button class="btn-save" (click)="saveEdit(produit)" title="Enregistrer">
-                    <i class="bi bi-check-lg"></i>
-                  </button>
-                  <button class="btn-cancel" (click)="cancelEdit(produit)" title="Annuler">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <td class="actions-cell">
+                  <!-- Mode Normal -->
+                  <div *ngIf="!isEditing(produit.id_produit)" class="action-buttons">
+                    <button class="btn-edit" (click)="enableEdit(produit)" title="Modifier">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn-delete" (click)="openDeleteModal(produit)" title="Supprimer">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+
+                  <!-- Mode Édition -->
+                  <div *ngIf="isEditing(produit.id_produit)" class="action-buttons">
+                    <button class="btn-save" (click)="saveEdit(produit)" title="Enregistrer">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button class="btn-cancel" (click)="cancelEdit(produit)" title="Annuler">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION ENSEMBLES -->
+    <div *ngIf="ensemblesGroupes.length > 0" class="type-section ensembles-section">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <i class="bi bi-gem"></i>
+          <h2 class="section-title">Collection Ensembles</h2>
+          <span class="count-badge">{{ ensemblesGroupes.length }}</span>
+        </div>
+      </div>
+
+      <!-- Groupes d'Ensembles -->
+      <div *ngFor="let groupe of ensemblesGroupes" class="modele-groupe ensemble-groupe">
+        <!-- Header du Modèle -->
+        <div class="modele-header ensemble-header">
+          <div class="modele-info">
+            <h3 class="modele-nom">
+              <i class="bi bi-box-seam me-2"></i>
+              {{ groupe.modele.nom_modele }}
+            </h3>
+            <span class="modele-type ensemble-type">{{ groupe.modele.type }}</span>
+            <span class="modele-total"
+                  [class.total-valid]="getTotalPiecesModele(groupe) === groupe.modele.total_pieces"
+                  [class.total-invalid]="getTotalPiecesModele(groupe) !== groupe.modele.total_pieces">
+              <i class="bi bi-layers me-1"></i>
+              Stock: {{ getTotalPiecesModele(groupe) }} / {{ groupe.modele.total_pieces }} pcs
+              <i *ngIf="getTotalPiecesModele(groupe) === groupe.modele.total_pieces"
+                 class="bi bi-check-circle-fill ms-1"></i>
+              <i *ngIf="getTotalPiecesModele(groupe) !== groupe.modele.total_pieces"
+                 class="bi bi-exclamation-triangle-fill ms-1"></i>
+            </span>
+            <span class="modele-prix">
+              {{ formatPrice(groupe.modele.prix_unitaire) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Produits (Tailles) du Modèle -->
+        <div class="produits-table">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Taille</th>
+                <th>Quantité en Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let produit of groupe.produits" [class.editing-row]="isEditing(produit.id_produit)">
+                <td class="id-cell">#{{ produit.id_produit }}</td>
+
+                <td>
+                  <span class="taille-badge ensemble-badge">
+                    <i class="bi bi-rulers me-1"></i>
+                    {{ produit.taille?.libelle }}
+                  </span>
+                </td>
+
+                <td>
+                  <input
+                    *ngIf="isEditing(produit.id_produit)"
+                    type="number"
+                    [(ngModel)]="produit.quantite"
+                    class="edit-input"
+                    min="0"
+                    placeholder="Quantité">
+                  <span *ngIf="!isEditing(produit.id_produit)" class="quantite-text">
+                    <i class="bi bi-box me-1"></i>
+                    {{ produit.quantite }} pcs
+                  </span>
+                </td>
+
+                <td class="actions-cell">
+                  <!-- Mode Normal -->
+                  <div *ngIf="!isEditing(produit.id_produit)" class="action-buttons">
+                    <button class="btn-edit" (click)="enableEdit(produit)" title="Modifier">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn-delete" (click)="openDeleteModal(produit)" title="Supprimer">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+
+                  <!-- Mode Édition -->
+                  <div *ngIf="isEditing(produit.id_produit)" class="action-buttons">
+                    <button class="btn-save" (click)="saveEdit(produit)" title="Enregistrer">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button class="btn-cancel" (click)="cancelEdit(produit)" title="Annuler">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 

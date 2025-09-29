@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-lg custom-navbar shadow-sm sticky-top">
   <div class="container-fluid px-3 px-lg-4">
     <!-- Logo -->
-    <a class="navbar-brand fw-bold fs-4 text-white" routerLink="/">
+    <a class="navbar-brand fw-bold fs-4 text-white" routerLink="/acceuil">
       <i class="bi bi-box-seam me-2"></i>
       Gestion Stock
     </a>
@@ -209,7 +209,7 @@
         </div>
 
         <!-- User Profile -->
-        <div class="dropdown">
+        <div class="dropdown me-3">
           <button
             class="btn btn-link text-white d-flex align-items-center p-2"
             type="button"
@@ -217,16 +217,57 @@
             <div class="user-avatar me-2">
               <i class="bi bi-person-circle fs-4"></i>
             </div>
-            <span class="d-none d-lg-inline">Admin</span>
-            <i class="bi bi-chevron-down ms-2 d-none d-lg-inline"></i>
+            <div class="d-none d-lg-block text-start me-2">
+              <div class="user-name">{{ userFullName }}</div>
+              <small class="user-role-badge">{{ getUserRole() }}</small>
+            </div>
+            <i class="bi bi-chevron-down d-none d-lg-inline"></i>
           </button>
           <ul class="dropdown-menu dropdown-menu-end user-dropdown">
-            <li><h6 class="dropdown-header">Mon Compte</h6></li>
-            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
-            <li><a class="dropdown-item" routerLink="/Paramettre-user"><i class="bi bi-gear me-2"></i>Paramètres</a></li>
+            <li>
+              <div class="dropdown-header">
+                <div class="d-flex align-items-center">
+                  <div class="user-avatar-large me-3">
+                    <span class="user-initial">{{ getUserInitial() }}</span>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">{{ userFullName }}</h6>
+                    <small class="text-muted">{{ getUserRole() }}</small>
+                    <br>
+                    <small class="text-muted">{{ currentUser?.email }}</small>
+                  </div>
+                </div>
+              </div>
+            </li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+            <li>
+              <a class="dropdown-item" routerLink="/user-profile">
+                <i class="bi bi-person me-2"></i>
+                Mon Profil
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/Paramettre-user">
+                <i class="bi bi-gear me-2"></i>
+                Paramètres
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a
+                class="dropdown-item text-danger"
+                (click)="logout()"
+                style="cursor: pointer;">
+                <i class="bi bi-box-arrow-right me-2"></i>
+                Déconnexion
+              </a>
+            </li>
           </ul>
+        </div>
+
+        <!-- Bouton Retour à l'extrême droite -->
+        <div class="retour-header">
+       <app-retour-button></app-retour-button>
         </div>
       </div>
     </div>

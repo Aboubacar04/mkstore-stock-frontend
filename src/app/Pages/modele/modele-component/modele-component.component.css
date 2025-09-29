@@ -1,5 +1,3 @@
-/* modele-component.component.css */
-
 .modele-container {
   min-height: 100vh;
   background-color: #EEDFCA;
@@ -645,3 +643,130 @@
 .table-responsive::-webkit-scrollbar-thumb:hover {
   background: #e5a682;
 }
+/* ============================================ */
+/* STYLES POUR LA COLONNE IMAGE ET ÉDITION */
+/* À AJOUTER dans modele-component.component.css */
+/* ============================================ */
+
+/* Colonne Image */
+.image-cell {
+  text-align: center;
+  width: 150px;
+}
+
+.image-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #EEDFCA;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #F7B893;
+  font-size: 1.5rem;
+}
+
+/* Container pour l'édition d'image */
+.edit-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Label personnalisé pour le bouton de changement d'image */
+.edit-image-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #F7B893;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.edit-image-label:hover {
+  background-color: #e5a682;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(247, 184, 147, 0.3);
+}
+
+.edit-image-label i {
+  font-size: 1rem;
+}
+
+/* Input file caché */
+.edit-file-input {
+  display: none;
+}
+
+/* Message de fichier sélectionné */
+.file-selected {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #28a745;
+  font-size: 0.75rem;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-selected i {
+  flex-shrink: 0;
+}
+
+/* ============================================ */
+/* RESPONSIVE POUR LA COLONNE IMAGE */
+/* ============================================ */
+
+@media (max-width: 768px) {
+  .image-cell {
+    width: auto;
+  }
+
+  .edit-image-label {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .image-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Pour mobile, afficher l'image en mode carte */
+  .image-cell::before {
+    content: 'Image: ';
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 1rem;
+    font-weight: 600;
+    text-align: left;
+    color: #F7B893;
+  }
+
+  .edit-image-container {
+    padding-left: 0;
+  }
+}
+
+
+
+
+

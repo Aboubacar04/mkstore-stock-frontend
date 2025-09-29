@@ -5,6 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { CommandeServiceService } from '../../Service/commande-service.service';
 import { ModeleServiceService } from '../../Service/modele-service.service';
 import { ProduitServiceService } from '../../Service/produit-service.service';
+import { AuthServiceService, User } from '../../Service/auth-service.service';
+import { RetourButtonComponent } from "../../button/retour-button/retour-button.component";
+
 
 interface Notification {
   id: number;
@@ -28,13 +31,17 @@ interface SearchResult {
 @Component({
   selector: 'app-header-component',
   standalone: true,
-  imports: [RouterModule, CommonModule, FormsModule],
+  imports: [RouterModule, CommonModule, FormsModule, RetourButtonComponent],
   templateUrl: './header-component.component.html',
   styleUrls: ['./header-component.component.css']
 })
 export class HeaderComponentComponent implements OnInit {
   notifications: Notification[] = [];
   notificationCount: number = 0;
+
+  // Utilisateur connecté
+  currentUser: User | null = null;
+  userFullName: string = 'Utilisateur';
 
   // Recherche
   searchQuery: string = '';
@@ -60,17 +67,83 @@ export class HeaderComponentComponent implements OnInit {
     private commandeService: CommandeServiceService,
     private modeleService: ModeleServiceService,
     private produitService: ProduitServiceService,
+    private authService: AuthServiceService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.loadUserInfo();
     this.loadNotifications();
     this.loadSearchData();
+
+    // S'abonner aux changements d'utilisateur
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.updateUserFullName();
+    });
 
     // Rafraîchir les notifications toutes les 30 secondes
     setInterval(() => {
       this.loadNotifications();
     }, 30000);
+  }
+
+  // Charger les informations de l'utilisateur connecté
+  loadUserInfo(): void {
+    this.currentUser = this.authService.getCurrentUser();
+    this.updateUserFullName();
+
+    console.log('=== UTILISATEUR DANS HEADER ===');
+    console.log('Utilisateur:', this.currentUser);
+    console.log('Nom complet:', this.userFullName);
+  }
+
+  // Mettre à jour le nom complet de l'utilisateur
+  updateUserFullName(): void {
+    if (this.currentUser) {
+      this.userFullName = `${this.currentUser.prenom} ${this.currentUser.nom}`;
+    } else {
+      this.userFullName = 'Utilisateur';
+    }
+  }
+
+  // Méthode de déconnexion
+  logout(): void {
+    console.log('=== DÉCONNEXION DÉCLENCHÉE ===');
+
+    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+      this.authService.logout().subscribe({
+        next: (response) => {
+          console.log('Déconnexion réussie:', response);
+
+          // Rediriger vers la page de connexion
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la déconnexion:', error);
+
+          // Même en cas d'erreur, rediriger vers login
+          // car le service a déjà nettoyé le localStorage
+          this.router.navigate(['/login']);
+        }
+      });
+    }
+  }
+
+  // Obtenir l'initiale du prénom pour l'avatar
+  getUserInitial(): string {
+    if (this.currentUser && this.currentUser.prenom) {
+      return this.currentUser.prenom.charAt(0).toUpperCase();
+    }
+    return 'U';
+  }
+
+  // Obtenir le rôle de l'utilisateur
+  getUserRole(): string {
+    if (this.currentUser) {
+      return this.currentUser.role === 'ADMIN' ? 'Administrateur' : 'Gérant';
+    }
+    return '';
   }
 
   loadSearchData(): void {
